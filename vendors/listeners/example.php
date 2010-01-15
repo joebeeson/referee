@@ -9,8 +9,10 @@
 	 * 
 	 * Here we attach just a simple little function and wait for any
 	 * E_NOTICE events to be fire from the component.
+	 * 
+	 * Remove the comment from the following line to attach the listener
 	 */
-	$logComponent->attach(E_NOTICE, 'exampleListener');
+	//$logComponent->attach(E_NOTICE, 'exampleListener');
 	
 	/**
 	 * This is our example listener that we attached above. All listeners

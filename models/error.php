@@ -4,7 +4,7 @@
 	 * Error model.
 	 * @author Joe Beeson <joe@joebeeson.com>
 	 */
-	class Error extends AppModel {
+	class Error extends JournalAppModel {
 		/**
 		 * For you MySQL users, here is the CREATE TABLE query to run.
 		 * 

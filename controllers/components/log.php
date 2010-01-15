@@ -1,12 +1,16 @@
 <?php
 
+	if (!class_exists('Observable')) {
+		App::import('Lib', 'Journal.observable');
+	}
+
 	/**
-	 * Tacks into PHP's error handling stack and adds functionality to 
-	 * store and act upon certain errors while suppressing them from the
-	 * view if debug is turned off.
+	 * Tacks into PHP's error handling stack. Extends Observable for any
+	 * class to tack into our error events. Any PHP file in found inside
+	 * vendors/listeners/ will be loaded automatically.
 	 * @author Joe Beeson <joe@joebeeson.com>
 	 */
-	class LogComponent extends Object {
+	class LogComponent extends Observable {
 		
 		/**
 		 * Helps us translate error integers back into their respective
@@ -14,7 +18,7 @@
 		 * @var array
 		 * @static
 		 */
-		static $levels = array(
+		public static $levels = array(
 			1     => 'E_ERROR',
 			2     => 'E_WARNING',
 			4     => 'E_PARSE',
@@ -41,12 +45,31 @@
 		protected $Error;
 		
 		/**
-		 * Register ourselves as the error handler.
+		 * Initialization actions
 		 * @return null
 		 * @access public
 		 */
 		public function initialize() {
+			// Attach us as an event handler
 			set_error_handler(array($this, '__error'));
+			// Let others find us by hooking into ClassRegistry
+			ClassRegistry::addObject('Journal.Log', $this);
+			// Load any listeners that may exist
+			$this->loadListeners();
+		}
+		
+		/**
+		 * Brings any files in the listeners/ directory into execution
+		 * @return null
+		 * @access private
+		 */
+		private function loadListeners() {
+			// TODO: Perhaps this should be configurable?
+			$directory = realpath(dirname(__FILE__).'/../../vendors/listeners');
+			$directory = new Folder($directory);
+			foreach ($directory->find('.+\.php') as $listener) {
+				require($directory->path.DS.$listener);
+			}
 		}
 		
 		/**
@@ -61,18 +84,19 @@
 		 * @access public
 		 */
 		public function __error($level, $string, $file, $line, $context) {
-			// Determine the method to call by the error thrown
+			// Determine the method to call by the error thrown and go
 			$method = strtolower(str_replace('E_', '', LogComponent::$levels[$level]));
+			$result = $this->$method($string, $file, $line, $context);
+			
+			// Fire off an event for any listeners
+			$this->notify($level, $string, $file, $line, $context);
+			
 			/**
 			 * Returning false will cause PHP's internal error handler
 			 * to execute normally. By default we tell it not to but if
 			 * the method we call says otherwise, we do that.
 			 */
-			return (
-				$this->$method($string, $file, $line, $context) 
-				or 
-				!Configure::read()
-			);
+			return ($result or !Configure::read());
 		}
 		
 		/**

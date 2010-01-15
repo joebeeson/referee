@@ -115,9 +115,7 @@
 			}
 			// Reset our Error model before we write to it.
 			$this->Error->create();
-			// Cover our bases and set the "created" column manually
-			$created = date('Y-m-d H:i:s');
-			$this->Error->save(compact('level', 'message', 'file', 'line', 'created'));
+			$this->Error->save(compact('level', 'message', 'file', 'line'));
 		}
 		
 		/**

@@ -39,11 +39,16 @@
 		 * @access public
 		 */
 		public function beforeFilter() {
-			if (isset($this->Auth)) {
-				$this->Auth->allow(array('index'));
+			if (Configure::read()) {
+				if (isset($this->Auth)) {
+					$this->Auth->allow(array('index'));
+				}
+				Configure::write('Cache.disable', true);
+				parent::beforeFilter();
+			} else {
+				// Referee plugin? What referee plugin?
+				$this->cakeError('error404'); 
 			}
-			Configure::write('Cache.disable', true);
-			parent::beforeFilter();
 		}
 
 		/**

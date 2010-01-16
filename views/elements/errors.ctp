@@ -1,19 +1,14 @@
-<table cellspacing="0" id="errors">
+<table cellspacing="0">
+	<tr style="font-weight: bold;">
+		<td>Severity</td>
+		<td>Location</td>
+		<td>Message</td>
+		<td>Created</td>
+	</tr>
 	<?php
-		$rows = array(array(
-			'<strong>Severity</strong>',
-			'<strong>Location</strong>',
-			'<strong>Message</strong>',
-			'<strong>Created</strong>',
-		));
-		foreach ($errors as $error) {
-			$rows[] = array(
-				Inflector::humanize($error['Error']['level']),
-				$error['Error']['file'].':'.$error['Error']['line'],
-				strip_tags($error['Error']['message']),
-				$this->Time->timeAgoInWords($error['Error']['created'])
-			);
+		// Loop over each error and display them out
+		foreach ($errors as $key=>$error) {
+			echo $this->element('error', compact('error', 'key'));
 		}
-		echo $this->Html->tableCells($rows, 'style="background: #DDD;"', null, true);
 	?>
 </table>

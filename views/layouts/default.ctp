@@ -6,9 +6,15 @@
 			body {
 				font-family: verdana,arial,helvetica,sans-serif;
 			}
-			/* Message column */
-			#errors td.column-3 {
-				width: 350px;
+			td {
+				vertical-align: top;
+				padding: 2px;
+			}
+			td.message {
+				width: 35%;
+			}
+			tr.odd {
+				background: #DDD;
 			}
 		</style>
 	</head>

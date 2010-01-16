@@ -2,7 +2,7 @@
 
 	/**
 	 * Provides administrator tools to inspect the errors logged by the
-	 * Journal plugin through the command line.
+	 * Referee plugin through the command line.
 	 * @author Joe Beeson <joe@joebeeson.com>
 	 */
 	class ErrorsShell extends Shell {
@@ -13,7 +13,7 @@
 		 * @access public
 		 */
 		public $uses = array(
-			'Journal.Error'
+			'Referee.Error'
 		);
 		
 		/**

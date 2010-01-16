@@ -1,7 +1,7 @@
 <?php
 
 	if (!class_exists('Observable')) {
-		App::import('Lib', 'Journal.observable');
+		App::import('Lib', 'Referee.observable');
 	}
 
 	/**
@@ -53,7 +53,7 @@
 			// Attach us as an event handler
 			set_error_handler(array($this, '__error'));
 			// Let others find us by hooking into ClassRegistry
-			ClassRegistry::addObject('Journal.Log', $this);
+			ClassRegistry::addObject('Referee.Log', $this);
 			// Load any listeners that may exist
 			$this->loadListeners();
 		}
@@ -111,7 +111,7 @@
 		private function logError($level, $message, $file, $line) {
 			// Initialize our Error model if we haven't yet
 			if (empty($this->Error)) {
-				$this->Error = ClassRegistry::init('Journal.Error');
+				$this->Error = ClassRegistry::init('Referee.Error');
 			}
 			// Reset our Error model before we write to it.
 			$this->Error->create();

@@ -1,6 +1,6 @@
 <?php
 
-	class JournalController extends JournalAppController {
+	class RefereeController extends RefereeAppController {
 
 		/**
 		 * Models
@@ -8,7 +8,7 @@
 		 * @access public
 		 */
 		public $uses = array(
-			'Journal.Error'
+			'Referee.Error'
 		);
 		
 		/**

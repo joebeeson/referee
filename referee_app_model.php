@@ -1,9 +1,9 @@
 <?php
 
 	/**
-	 * JournalAppModel
+	 * RefereeAppModel
 	 * @author Joe Beeson <joe@joebeeson.com>
 	 */
-	class JournalAppModel extends AppModel {
+	class RefereeAppModel extends AppModel {
 		
 	}

@@ -1,6 +1,6 @@
 <?php
 	// Retrieve an instance of the LogComponent from ClassRegistry
-	$logComponent = ClassRegistry::getObject('Journal.Log');
+	$logComponent = ClassRegistry::getObject('Referee.Log');
 	
 	/**
 	 * ::attach() can accept any valid callback. This means you could

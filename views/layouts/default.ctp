@@ -6,6 +6,12 @@
 			body {
 				font-family: verdana,arial,helvetica,sans-serif;
 			}
+			h1 {
+				padding-bottom: 0px;
+			}
+			#errors {
+				width: 100%;
+			}
 			td {
 				vertical-align: top;
 				padding: 2px;

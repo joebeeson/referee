@@ -1,9 +1,9 @@
-<table cellspacing="0">
+<table cellspacing="0" id="errors">
 	<tr style="font-weight: bold;">
-		<td>Severity</td>
-		<td>Location</td>
-		<td>Message</td>
-		<td>Created</td>
+		<td><?php echo $paginator->sort('Severity', 'severity'); ?></td>
+		<td><?php echo $paginator->sort('Location', 'location'); ?></td>
+		<td><?php echo $paginator->sort('Message', 'message'); ?></td>
+		<td><?php echo $paginator->sort('Created', 'created'); ?></td>
 	</tr>
 	<?php
 		// Loop over each error and display them out

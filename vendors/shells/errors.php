@@ -35,8 +35,7 @@
 		 * @access public
 		 */
 		public function monitor() {
-			$this->out('Monitoring the Errors model, force exit to quit..');
-			$this->hr();
+			$this->out('');
 			set_time_limit(0);
 			$olderThan = date('Y-m-d H:i:s');
 			while (true) {
@@ -51,7 +50,7 @@
 						$this->out('Severity: '.$error['Error']['level']);
 						$this->out('Location: '.$error['Error']['file'].':'.$error['Error']['line']);
 						$this->out($error['Error']['message']);
-						$this->hr();
+						$this->hr(1);
 					}
 					$olderThan = date('Y-m-d H:i:s');
 				}

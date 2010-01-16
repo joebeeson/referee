@@ -18,4 +18,22 @@
 		 *   PRIMARY KEY (`id`)
 		 * ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 		 */
+		
+		/**
+		 * Returns errors for the day matching $date, which is strtotime
+		 * ready. Defaults to an "all" find but can also be used for count
+		 * @param string $date
+		 * @param string $method
+		 * @return array
+		 * @access public
+		 */
+		public function day($date = 'today', $method = 'all') {
+			return $this->find($method, array(
+				'conditions' => array(
+					'`Error`.`created` >' => date('Y-m-d H:i:s', strtotime($date)),
+					'`Error`.`created` <' => date('Y-m-d H:i:s', strtotime('+1 day', strtotime($date))),
+				)
+			));
+		}
+		
 	}

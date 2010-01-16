@@ -40,25 +40,20 @@
 		 */
 		public function beforeFilter() {
 			if (isset($this->Auth)) {
-				$this->Auth->allow(array('index', 'today'));
+				$this->Auth->allow(array('index'));
 			}
 			Configure::write('Cache.disable', true);
 			parent::beforeFilter();
 		}
-	
+
+		/**
+		 * Main (only) action
+		 * @return null
+		 * @acccess public
+		 */
 		public function index() {
-			pr($this->Error->day('today', 'count'));
-			die;
-			die;
-		}
-		
-		public function today() {
-			$count  = $this->Error->day('today', 'count');
-			$this->paginate['conditions'] = array(
-				'`Error`.`created` >' => date('Y-m-d H:i:s', strtotime('today'))
-			);
 			$errors = $this->paginate();
-			$this->set(compact('count', 'errors'));
+			$this->set(compact('errors'));
 		}
 		
 	}

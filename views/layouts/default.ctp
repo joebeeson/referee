@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>CakePHP Journal Plugin</title>
+		<title>CakePHP Referee Plugin</title>
 		<style type="text/css">
 			body {
 				font-family: verdana,arial,helvetica,sans-serif;
@@ -16,8 +16,18 @@
 				vertical-align: top;
 				padding: 2px;
 			}
+			
+			/* Severity coloring */
+			td.user_warning, td.warning {
+				color: red;
+			}
+			td.notice {
+				color: orange;
+			}
+			
+			/* Row, cell coloring and font weights */
 			td.message {
-				width: 35%;
+				width: 40%;
 			}
 			tr.odd {
 				background: #DDD;

@@ -8,7 +8,7 @@
 	 * @see http://php.net/manual/en/language.pseudo-types.php
 	 * 
 	 * Here we attach just a simple little function and wait for any
-	 * E_NOTICE events to be fire from the component.
+	 * E_NOTICE events to be fired from the component.
 	 * 
 	 * Remove the comment from the following line to attach the listener
 	 */

@@ -49,11 +49,9 @@
 		 * @access public
 		 */
 		public function initialize() {
-			// Attach us as an event handler
+			// Attach us as an event handler and shutdown function
 			set_error_handler(array($this, '__error'));
-			
-			register_shutdown_function(array($this, '__fatal'));
-			
+			register_shutdown_function(array($this, '__shutdown'));
 			// Let others find us by hooking into ClassRegistry
 			ClassRegistry::addObject('Referee.Log', $this);
 			// Load any listeners that may exist
@@ -106,7 +104,7 @@
 		 * @return null
 		 * @access public
 		 */
-		public function __fatal() {
+		public function __shutdown() {
 			$error = error_get_last();
 			if ($error['type'] === E_ERROR || $error['type'] === E_USER_ERROR) {
 				extract($error);

@@ -37,8 +37,8 @@
 		);
 		
 		/**
-		 * Our Error model for saving data.
-		 * @var Model
+		 * Our Error model.
+		 * @var Error
 		 * @access protected
 		 */
 		protected $Error;
@@ -181,7 +181,6 @@
 		 */
 		private function error($message, $file, $line, $context) {
 			$this->logError('error', $message, $file, $line);
-			die('OH GOD!');
 			// Stop execution.
 			return false;
 		}

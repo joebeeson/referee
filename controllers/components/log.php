@@ -83,18 +83,18 @@
 		 * @access public
 		 */
 		public function __error($level, $string, $file, $line, $context) {
-			// Determine the method to call by the error thrown and go
-			$method = strtolower(str_replace('E_', '', LogComponent::$levels[$level]));
-			$result = $this->$method($string, $file, $line, $context);
+			// Translate to a human readable error level
+			$error = strtolower(str_replace('E_', '', LogComponent::$levels[$level]));
 			
-			// Fire off an event for any listeners
-			$this->notify($level, $string, $file, $line, $context);
+			// We don't act upon E_STRICT since there are a ton of them.
+			if ($error != 'strict') {
+				// Log the event and notify any listeners
+				$this->logError($error, $string, $file, $line);
+				$this->notify($level, $string, $file, $line, $context);
+			}
 			
-			/**
-			 * Returning false will cause PHP's internal error handler
-			 * to execute normally.
-			 */
-			return ($result or !Configure::read());
+			// Returning false causes PHP's internal handler to fire.
+			return !Configure::read();
 		}
 
 		/**
@@ -128,130 +128,6 @@
 			// Reset our Error model before we write to it.
 			$this->Error->create();
 			$this->Error->save(compact('level', 'message', 'file', 'line'));
-		}
-		
-		/**
-		 * Handles E_STRICT error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function strict($message, $file, $line, $context) {
-			// CakePHP throws a *lot* of E_STRICT errors.
-		}
-		
-		/**
-		 * Handles E_NOTICE error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function notice($message, $file, $line, $context) {
-			$this->logError('notice', $message, $file, $line);
-		}
-		
-		/**
-		 * Handles E_WARNING error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function warning($message, $file, $line, $context) {
-			$this->logError('warning', $message, $file, $line);
-		}
-		
-		/**
-		 * Handles E_ERROR error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function error($message, $file, $line, $context) {
-			$this->logError('error', $message, $file, $line);
-			// Stop execution.
-			return false;
-		}
-		
-		/**
-		 * Handles E_RECOVERABLE_ERROR error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function recoverable_error($message, $file, $line, $context) {
-				$this->logError('error', $message, $file, $line);
-		}
-		
-		/**
-		 * Handles E_USER_ERROR error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function user_error($message, $file, $line, $context) {
-			$this->logError('user_error', $message, $file, $line);
-			// Stop execution.
-			return false;
-		}
-		
-		
-		/**
-		 * Handles E_USER_NOTICE error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function user_notice($message, $file, $line, $context) {
-			$this->logError('user_notice', $message, $file, $line);
-			// Stop execution.
-			return false;
-		}
-		
-		/**
-		 * Handles E_USER_WARNING error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function user_warning($message, $file, $line, $context) {
-			$this->logError('user_warning', $message, $file, $line);
-		}
-		
-		/**
-		 * Handles E_PARSE error messages
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access private
-		 */
-		private function parse($message, $file, $line, $context) {
-			$this->logError('parse', $message, $file, $line);
 		}
 		
 	}

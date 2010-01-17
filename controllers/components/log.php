@@ -106,7 +106,7 @@
 		 */
 		public function __shutdown() {
 			$error = error_get_last();
-			if ($error['type'] === E_ERROR || $error['type'] === E_USER_ERROR) {
+			if (in_array($error['type'], array(E_ERROR, E_USER_ERROR, E_PARSE))) {
 				extract($error);
 				$this->__error($type, $message, $file, $line, array());
 			}

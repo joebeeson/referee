@@ -5,6 +5,7 @@
 		<style type="text/css">
 			body {
 				font-family: verdana,arial,helvetica,sans-serif;
+				font-size: 12px;
 			}
 			h1 {
 				padding-bottom: 0px;
@@ -14,20 +15,34 @@
 			}
 			td {
 				vertical-align: top;
-				padding: 2px;
+				padding: 4px;
 			}
 			
-			/* Severity coloring */
+			td.level {
+				padding-left: 20px;
+				font-weight: bold;
+			}
+			
+			/* Severity coloring, backgrounds */
 			td.user_warning, td.warning {
-				color: red;
+				color: #C98300;
+				background: url('http://i.imgur.com/WrI0K.gif') no-repeat;
+				background-position: 1px 4px;
 			}
 			td.notice {
-				color: orange;
+				color: #C9B300;
+				background: url('http://imgur.com/iqcJv.gif') no-repeat;
+				background-position: 1px 4px;
+			}
+			td.error, td.parse {
+				color: #C90000;
+				background: url('http://imgur.com/0WLYS.gif') no-repeat;
+				background-position: 1px 4px;
 			}
 			
 			/* Row, cell coloring and font weights */
 			td.message {
-				width: 40%;
+				width: 45%;
 			}
 			tr.odd {
 				background: #DDD;

@@ -4,8 +4,9 @@ A CakePHP 1.3 plugin that logs all errors to the database while supplying an eas
 ## Features
  - Easily extendable for custom notifications.
  - Unobtrusive, shouldn't interfere with normal PHP errors.
- - Logs all errors to the database for consumption.
- - Web accessible log viewing.
+ - Logs all errors to the database.
+ - Web accessible log viewing when in debug.
+ - Monitor production sites in realtime from the command line.
 
 ## Requirements
  - **PHP5** - Created on 5.2.10.

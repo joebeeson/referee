@@ -8,7 +8,7 @@
 	class ErrorsShell extends Shell {
 		
 		/**
-		 * Models
+		 * Models.
 		 * @var array
 		 * @access public
 		 */
@@ -18,7 +18,7 @@
 		
 		/**
 		 * Initialization method. We have to jump through some hoops to
-		 * allow our shell to work correctly.
+		 * allow our shell to work correctly from a plugin path.
 		 * @return null
 		 * @access public
 		 */
@@ -30,33 +30,50 @@
 		}
 		
 		/**
-		 * Monitors the Error model for new records in realtime
+		 * Monitors the Error model for new records in realtime. Useful
+		 * for production sites that don't display errors.
 		 * @return null
 		 * @access public
 		 */
 		public function monitor() {
-			$this->out('');
 			set_time_limit(0);
 			$olderThan = date('Y-m-d H:i:s');
 			while (true) {
-				// Search for any errors we haven't yet seen
+				// Search for any errors we haven't yet seen.
 				$errors = $this->Error->find('all', array(
 					'conditions' => array('created >' => $olderThan)
 				));
 				
-				// We found some! Display them and update $olderThan
+				// Found some. Display them and update our $olderThan
 				if (!empty($errors)) {
-					foreach ($errors as $error) {
-						$this->out('Severity: '.$error['Error']['level']);
-						$this->out('Location: '.$error['Error']['file'].':'.$error['Error']['line']);
-						$this->out($error['Error']['message']);
-						$this->hr(1);
-					}
+					$this->displayError($errors);
+					$this->out('');
 					$olderThan = date('Y-m-d H:i:s');
 				}
 				
 				// We don't want to destroy the database, wait a second
 				sleep(1);
+			}
+		}
+		
+		/**
+		 * Convenience method for displaying one or many errors. Accepts
+		 * an array directly from the model. If passed more than one it
+		 * will loop over it and display each.
+		 * @param array $errors
+		 * @return null
+		 * @access private
+		 */
+		private function displayError($errors = array()) {
+			if (!isset($errors['Error'])) {
+				foreach ($errors as $error) {
+					$this->displayError($error);
+				}
+			} else {
+				extract($errors['Error']);
+				$this->out("Severity: $level");
+				$this->out("Location: $file:$line");
+				$this->out($message);
 			}
 		}
 		

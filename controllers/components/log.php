@@ -185,6 +185,19 @@
 		}
 		
 		/**
+		 * Handles E_RECOVERABLE_ERROR error messages
+		 * @param string $message
+		 * @param string $file
+		 * @param integer $line
+		 * @param array $context
+		 * @return null
+		 * @access private
+		 */
+		private function recoverable_error($message, $file, $line, $context) {
+				$this->logError('error', $message, $file, $line);
+		}
+		
+		/**
 		 * Handles E_USER_ERROR error messages
 		 * @param string $message
 		 * @param string $file

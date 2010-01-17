@@ -1,8 +1,7 @@
 <?php
 
-	if (!class_exists('Observable')) {
-		App::import('Lib', 'Referee.observable');
-	}
+	// We need the Observable library for our listeners
+	App::import('Lib', 'Referee.observable');
 
 	/**
 	 * Tacks into PHP's error handling stack. Extends Observable for any
@@ -52,6 +51,9 @@
 		public function initialize() {
 			// Attach us as an event handler
 			set_error_handler(array($this, '__error'));
+			
+			register_shutdown_function(array($this, '__fatal'));
+			
 			// Let others find us by hooking into ClassRegistry
 			ClassRegistry::addObject('Referee.Log', $this);
 			// Load any listeners that may exist
@@ -93,10 +95,23 @@
 			
 			/**
 			 * Returning false will cause PHP's internal error handler
-			 * to execute normally. By default we tell it not to but if
-			 * the method we call says otherwise, we do that.
+			 * to execute normally.
 			 */
 			return ($result or !Configure::read());
+		}
+
+		/**
+		 * Registered as a shutdown function, checks if we stopped for a
+		 * fatal error of sorts so that we can catch and log it.
+		 * @return null
+		 * @access public
+		 */
+		public function __fatal() {
+			$error = error_get_last();
+			if ($error['type'] === E_ERROR || $error['type'] === E_USER_ERROR) {
+				extract($error);
+				$this->__error($type, $message, $file, $line, array());
+			}
 		}
 		
 		/**
@@ -128,7 +143,7 @@
 		 * @access private
 		 */
 		private function strict($message, $file, $line, $context) {
-			// You DO NOT want to log strict errors. There are a lot.
+			// CakePHP throws a *lot* of E_STRICT errors.
 		}
 		
 		/**
@@ -168,12 +183,13 @@
 		 */
 		private function error($message, $file, $line, $context) {
 			$this->logError('error', $message, $file, $line);
-			// Stop execution
+			die('OH GOD!');
+			// Stop execution.
 			return false;
 		}
 		
 		/**
-		 * Handles E_PARSE error messages
+		 * Handles E_USER_ERROR error messages
 		 * @param string $message
 		 * @param string $file
 		 * @param integer $line
@@ -181,8 +197,26 @@
 		 * @return null
 		 * @access private
 		 */
-		private function parse($message, $file, $line, $context) {
-			$this->logError('parse', $message, $file, $line);
+		private function user_error($message, $file, $line, $context) {
+			$this->logError('user_error', $message, $file, $line);
+			// Stop execution.
+			return false;
+		}
+		
+		
+		/**
+		 * Handles E_USER_NOTICE error messages
+		 * @param string $message
+		 * @param string $file
+		 * @param integer $line
+		 * @param array $context
+		 * @return null
+		 * @access private
+		 */
+		private function user_notice($message, $file, $line, $context) {
+			$this->logError('user_notice', $message, $file, $line);
+			// Stop execution.
+			return false;
 		}
 		
 		/**
@@ -196,6 +230,19 @@
 		 */
 		private function user_warning($message, $file, $line, $context) {
 			$this->logError('user_warning', $message, $file, $line);
+		}
+		
+		/**
+		 * Handles E_PARSE error messages
+		 * @param string $message
+		 * @param string $file
+		 * @param integer $line
+		 * @param array $context
+		 * @return null
+		 * @access private
+		 */
+		private function parse($message, $file, $line, $context) {
+			$this->logError('parse', $message, $file, $line);
 		}
 		
 	}

@@ -12,5 +12,5 @@ Features
 
 Requirements
 ------------
- - **PHP5** - Created on 5.2.10.
+ - **PHP5** - Specifically 5.2 or greater.
  - **CakePHP 1.3-beta** - May be compatible with earlier versions.

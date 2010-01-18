@@ -57,6 +57,21 @@
 		}
 		
 		/**
+		 * Purges all records in the Errors model.
+		 * @return null
+		 * @access public
+		 */
+		public function purge() {
+			$choice = $this->in('Are you sure?', array('y', 'n'));
+			if ($choice == 'y') {
+				$this->out('Deleting all Error records...');
+				$this->Error->deleteAll();
+			} else {
+				$this->out('Operation aborted');
+			}
+		}
+		
+		/**
 		 * Convenience method for displaying one or many errors. Accepts
 		 * an array directly from the model. If passed more than one it
 		 * will loop over it and display each.

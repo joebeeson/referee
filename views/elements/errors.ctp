@@ -1,8 +1,8 @@
 <table cellspacing="0" id="errors">
-	<tr style="font-weight: bold;">
+	<tr class="header">
 		<td><?php echo $paginator->sort('Severity', 'severity'); ?></td>
 		<td><?php echo $paginator->sort('Location', 'location'); ?></td>
-		<td><?php echo $paginator->sort('Message', 'message'); ?></td>
+		<!--<td><?php echo $paginator->sort('Message', 'message'); ?></td>//-->
 		<td><?php echo $paginator->sort('Created', 'created'); ?></td>
 	</tr>
 	<?php

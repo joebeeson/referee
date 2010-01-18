@@ -1,0 +1,28 @@
+body {
+	background: url('/referee/img/background.png');
+	text-align: center;
+	padding: 0px;
+	margin: 0px;
+	font-size: 12px;
+	font-family: verdana,helvetica,sans-serif;
+}
+
+.pagination {
+	background: #aaa;
+	font-weight: bold;
+	padding: 5px;
+}
+
+.pagination a {
+	color: #444;
+}
+
+#container {
+	text-align: left;
+	vertical-align: middle;
+	margin: 0px auto;
+	padding: 6px;
+	width: 800px;
+	background-color: #ffffff;
+	border: 6px solid #5a5a5a;
+}

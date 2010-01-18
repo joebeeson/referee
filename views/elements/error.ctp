@@ -7,9 +7,6 @@
 		<?php e(Inflector::humanize(str_replace('user_warning', 'Warning', $level))); ?>
 	</td>
 	<td class="file">
-		<?php
-			$file = str_replace('/var/www/meeting_planner', '', $file);
-		?>
 		<?php e(str_replace(realpath(APP.'../'), '', $file)); ?>:<?php e($line); ?>
 	</td><!--
 	<td class="message" width="300">

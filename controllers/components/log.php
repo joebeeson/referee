@@ -48,6 +48,9 @@
 		 * @access public
 		 */
 		public function initialize() {
+			if (!class_exists('ErrorHandler')) {
+				require(CAKE.'libs'.DS.'error.php');
+			}
 			// Attach us as an event handler and shutdown function
 			set_error_handler(array($this, '__error'));
 			register_shutdown_function(array($this, '__shutdown'));

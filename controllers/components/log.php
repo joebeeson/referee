@@ -2,7 +2,10 @@
 
 	// We need the Observable library for our listeners
 	App::import('Lib', 'Referee.observable');
-
+	
+	// Make sure we have the ErrorHandler in place
+	App::import('Core', 'Error');
+	
 	/**
 	 * Tacks into PHP's error handling stack. Extends Observable for any
 	 * class to tack into our error events. Any PHP file in found inside
@@ -48,9 +51,6 @@
 		 * @access public
 		 */
 		public function initialize() {
-			if (!class_exists('ErrorHandler')) {
-				require(CAKE.'libs'.DS.'error.php');
-			}
 			// Attach us as an event handler and shutdown function
 			set_error_handler(array($this, '__error'));
 			register_shutdown_function(array($this, '__shutdown'));

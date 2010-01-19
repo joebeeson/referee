@@ -113,8 +113,7 @@
 				$this->notify($level, $level, $string, $file, $line, $context);
 			}
 			
-			// Returning false causes PHP's internal handler to fire.
-			return true;
+			return Configure::read();
 		}
 
 		/**

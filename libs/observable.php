@@ -66,6 +66,12 @@
 					$return[] = call_user_func_array($callback, $arguments);
 				}
 			}
+			// Support for universal notifications
+			if (isset($this->events['*'])) {
+				foreach ($this->events['*'] as $callback) {
+					$return[] = call_user_func_array($callback, $arguments);
+				}
+			}
 			return $return;
 		}
 		

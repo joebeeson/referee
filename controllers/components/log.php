@@ -71,8 +71,8 @@
 		 * @access private
 		 */
 		private function attachHandlers() {
-			// This will give us a copy of Cake's error handler
-			$this->Debugger = set_error_handler(array($this, '__error'));
+			// Set us as the error handler and attach Cake's as a listener
+			$this->attach('*', set_error_handler(array($this, '__error')));
 			// Register a shutdown function to catch __fatal errors
 			register_shutdown_function(array($this, '__shutdown'));
 		}
@@ -89,20 +89,6 @@
 			foreach ($directory->find('.+\.php') as $listener) {
 				require($directory->path.DS.$listener);
 			}
-		}
-		
-		/**
-		 * Let Cake's Debugger object know about the issue
-		 * @param integer $level
-		 * @param string $string
-		 * $param string $file
-		 * @param integer $line
-		 * @param array $context
-		 * @return null
-		 * @access public
-		 */
-		private function notifyDebugger($level, $string, $file, $line, $context) {
-			$this->Debugger[0]->{$this->Debugger[1]}($level, $string, $file, $line, $context);
 		}
 		
 		/**
@@ -124,8 +110,7 @@
 			if ($error != 'strict') {
 				// Log the event and notify any listeners
 				$this->logError($error, $string, $file, $line);
-				$this->notify($level, $string, $file, $line, $context);
-				$this->notifyDebugger($level, $string, $file, $line, $context);
+				$this->notify($level, $level, $string, $file, $line, $context);
 			}
 			
 			// Returning false causes PHP's internal handler to fire.

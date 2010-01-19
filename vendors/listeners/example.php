@@ -19,7 +19,7 @@
 	 * This is our example listener that we attached above. It will be
 	 * called when an E_NOTICE occurs.
 	 */
-	function exampleListener($string, $file, $line, $context) {
+	function exampleListener($level, $string, $file, $line, $context) {
 		?>
 			<div style="-moz-border-radius: 5px; background: #D1BE2E; padding: 5px;">
 				<strong>RefereePlugin: exampleListener() caught an E_NOTICE</strong><br/>

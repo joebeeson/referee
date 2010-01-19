@@ -39,6 +39,13 @@
 		);
 		
 		/**
+		 * Holds our instance of Cake's Debugger
+		 * @var Debugger
+		 * @access protected
+		 */
+		protected $Debugger;
+		
+		/**
 		 * Our Error model.
 		 * @var Error
 		 * @access protected
@@ -51,13 +58,23 @@
 		 * @access public
 		 */
 		public function initialize() {
-			// Attach us as an event handler and shutdown function
-			set_error_handler(array($this, '__error'));
-			register_shutdown_function(array($this, '__shutdown'));
-			// Let others find us by hooking into ClassRegistry
+			// Tell ClassRegistry about ourself.
 			ClassRegistry::addObject('Referee.Log', $this);
-			// Load any listeners that may exist
+			// Get our grubby paws on the errors and load our listeners
+			$this->attachHandlers();
 			$this->loadListeners();
+		}
+		
+		/**
+		 * Attach our methods to the various handlers.
+		 * @return null
+		 * @access private
+		 */
+		private function attachHandlers() {
+			// This will give us a copy of Cake's error handler
+			$this->Debugger = set_error_handler(array($this, '__error'));
+			// Register a shutdown function to catch __fatal errors
+			register_shutdown_function(array($this, '__shutdown'));
 		}
 		
 		/**
@@ -72,6 +89,21 @@
 			foreach ($directory->find('.+\.php') as $listener) {
 				require($directory->path.DS.$listener);
 			}
+		}
+		
+		/**
+		 * Let Cake's Debugger object know about the issue
+		 * @param integer $level
+		 * @param string $string
+		 * $param string $file
+		 * @param integer $line
+		 * @param array $context
+		 * @return null
+		 * @access public
+		 */
+		private function notifyDebugger($level, $string, $file, $line, $context) {
+			$arguments = func_get_args();
+			call_user_func_array($this->Debugger, $arguments);
 		}
 		
 		/**
@@ -94,10 +126,11 @@
 				// Log the event and notify any listeners
 				$this->logError($error, $string, $file, $line);
 				$this->notify($level, $string, $file, $line, $context);
+				$this->notifyDebugger($level, $string, $file, $line, $context);
 			}
 			
 			// Returning false causes PHP's internal handler to fire.
-			return !Configure::read();
+			return true;
 		}
 
 		/**

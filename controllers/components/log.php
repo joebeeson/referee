@@ -102,8 +102,7 @@
 		 * @access public
 		 */
 		private function notifyDebugger($level, $string, $file, $line, $context) {
-			$arguments = func_get_args();
-			call_user_func_array($this->Debugger, $arguments);
+			$this->Debugger[0]->{$this->Debugger[1]}($level, $string, $file, $line, $context);
 		}
 		
 		/**

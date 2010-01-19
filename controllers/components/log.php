@@ -102,14 +102,25 @@
 			// We don't act upon E_STRICT since there are a ton of them.
 			if ($error != 'strict') {
 				// Log the event and notify any listeners
-				$this->notify($level, $level, $message, $file, $line, $context);
 				$this->errors[] = array(
 					'level' => $error,	'message' => $message,
 					'file' => $file,	'line' => $line,
 				);
+				$this->notify($level, $level, $message, $file, $line, $context);
 			}
 			// Allow PHP's error handler to take over if we're in debug
 			return Configure::read();
+		}
+		
+		/**
+		 * Handles writing out our errors to the database
+		 * @return null
+		 * @access private
+		 */
+		private function writeOutErrors() {
+			if (!empty($this->errors)) {
+				ClassRegistry::init('Referee.Error')->saveAll($this->errors);
+			}
 		}
 		
 		/**
@@ -123,12 +134,22 @@
 			$error = error_get_last();
 			if (in_array($error['type'], array(E_ERROR, E_USER_ERROR, E_PARSE))) {
 				extract($error);
+				
+				/**
+				 * We have to append the error here because once Cake is
+				 * notified of the error it will stop all execution and
+				 * wont give us a chance to log the error ourself.
+				 */
+				$this->errors[] = array(
+					'level'   => strtolower(str_replace('E_', '', LogComponent::$levels[$type])),	
+					'message' => $message,
+					'file' 	  => $file,	
+					'line' 	  => $line,
+				);
+				$this->writeOutErrors();
 				$this->__error($type, $message, $file, $line, array());
 			}
-			// Write out our errors to the database.
-			if (!empty($this->errors)) {
-				ClassRegistry::init('Referee.Error')->saveAll($this->errors);
-			}
+			$this->writeOutErrors();
 		}
 		
 	}

@@ -39,18 +39,11 @@
 		);
 		
 		/**
-		 * Holds our instance of Cake's Debugger
-		 * @var Debugger
+		 * Our collection of errors to be logged.
+		 * @var array
 		 * @access protected
 		 */
-		protected $Debugger;
-		
-		/**
-		 * Our Error model.
-		 * @var Error
-		 * @access protected
-		 */
-		protected $Error;
+		protected $errors;
 		
 		/**
 		 * Initialization actions
@@ -102,20 +95,23 @@
 		 * @return null
 		 * @access public
 		 */
-		public function __error($level, $string, $file, $line, $context) {
+		public function __error($level, $message, $file, $line, $context) {
 			// Translate to a human readable error level
 			$error = strtolower(str_replace('E_', '', LogComponent::$levels[$level]));
 			
 			// We don't act upon E_STRICT since there are a ton of them.
 			if ($error != 'strict') {
 				// Log the event and notify any listeners
-				$this->logError($error, $string, $file, $line);
-				$this->notify($level, $level, $string, $file, $line, $context);
+				$this->notify($level, $level, $message, $file, $line, $context);
+				$this->errors[] = array(
+					'level' => $error,	'message' => $message,
+					'file' => $file,	'line' => $line,
+				);
 			}
-			
+			// Allow PHP's error handler to take over if we're in debug
 			return Configure::read();
 		}
-
+		
 		/**
 		 * Registered as a shutdown function, checks if we stopped for a
 		 * fatal error of sorts so that we can catch and log it.
@@ -128,25 +124,10 @@
 				extract($error);
 				$this->__error($type, $message, $file, $line, array());
 			}
-		}
-		
-		/**
-		 * Stores the error in the database.
-		 * @param string $level
-		 * @param string $message
-		 * @param string $file
-		 * @param integer $line
-		 * @return void
-		 * @access private
-		 */
-		private function logError($level, $message, $file, $line) {
-			// Initialize our Error model if we haven't yet
-			if (empty($this->Error)) {
-				$this->Error = ClassRegistry::init('Referee.Error');
+			// Write out our errors to the database.
+			if (!empty($this->errors)) {
+				ClassRegistry::init('Referee.Error')->saveAll($this->errors);
 			}
-			// Reset our Error model before we write to it.
-			$this->Error->create();
-			$this->Error->save(compact('level', 'message', 'file', 'line'));
 		}
 		
 	}

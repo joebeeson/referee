@@ -114,7 +114,8 @@
 		
 		/**
 		 * Registered as a shutdown function, checks if we stopped for a
-		 * fatal error of sorts so that we can catch and log it.
+		 * fatal error of sorts so that we can catch and log it. We use
+		 * this time to write our errors to the database.
 		 * @return null
 		 * @access public
 		 */

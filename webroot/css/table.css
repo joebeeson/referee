@@ -53,7 +53,7 @@
 	background-position: 1px 5px;
 }
 
-#errors td.notice {
+#errors td.notice, #errors td.user_notice {
 	background: url('/referee/img/notice.png') no-repeat;
 	background-position: 1px 5px;
 }

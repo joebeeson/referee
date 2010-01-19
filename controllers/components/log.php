@@ -97,15 +97,11 @@
 		 */
 		public function __error($level, $message, $file, $line, $context) {
 			// Translate to a human readable error level
-			$error = strtolower(str_replace('E_', '', LogComponent::$levels[$level]));
+			$error = self::translateError($level);
 			
 			// We don't act upon E_STRICT since there are a ton of them.
 			if ($error != 'strict') {
-				// Log the event and notify any listeners
-				$this->errors[] = array(
-					'level' => $error,	'message' => $message,
-					'file' => $file,	'line' => $line,
-				);
+				$this->logError($error, $message, $file, $line);
 				$this->notify($level, $level, $message, $file, $line, $context);
 			}
 			// Allow PHP's error handler to take over if we're in debug
@@ -113,14 +109,58 @@
 		}
 		
 		/**
-		 * Handles writing out our errors to the database
+		 * Appends the error to our $errors variable for use later. If 
+		 * the passed error is fatal we start the writeOutErrors now.
+		 * @param string $level
+		 * @param string $message
+		 * @param string $file
+		 * @param integer $line
+		 * @return null
+		 * @access private
+		 */
+		private function logError($level, $message, $file, $line) {
+			$this->errors[] = compact('level', 'message', 'file', 'line');
+			if (self::isFatal($level)) {
+				$this->writeOutErrors();
+			}
+		}
+		
+		/**
+		 * Handles writing out our errors to the database. Clears the
+		 * $errors variable back to an empty array.
 		 * @return null
 		 * @access private
 		 */
 		private function writeOutErrors() {
 			if (!empty($this->errors)) {
 				ClassRegistry::init('Referee.Error')->saveAll($this->errors);
+				$this->errors = array();
 			}
+		}
+		
+		/**
+		 * Convenience method for determining if the passed level is a
+		 * fatal error level. Accepts integers or strings.
+		 * @param mixed $level
+		 * @return boolean
+		 * @access public
+		 * @static
+		 */
+		public static function isFatal($level = '') {
+			$level = (is_int($level) ? self::translateError($level) : $level);
+			return in_array($level, array('error', 'user_error', 'parse'));
+		}
+		
+		/**
+		 * Convenience method for translating an error integer into its
+		 * corresponding, human readable, error text.
+		 * @param integer $level
+		 * @return string
+		 * @access public
+		 * @static
+		 */
+		public static function translateError($level = 0) {
+			return strtolower(str_replace('E_', '', self::$levels[$level]));
 		}
 		
 		/**
@@ -132,23 +172,11 @@
 		 */
 		public function __shutdown() {
 			$error = error_get_last();
-			if (in_array($error['type'], array(E_ERROR, E_USER_ERROR, E_PARSE))) {
+			if (self::isFatal($error['type'])) {
 				extract($error);
-				
-				/**
-				 * We have to append the error here because once Cake is
-				 * notified of the error it will stop all execution and
-				 * wont give us a chance to log the error ourself.
-				 */
-				$this->errors[] = array(
-					'level'   => strtolower(str_replace('E_', '', LogComponent::$levels[$type])),	
-					'message' => $message,
-					'file' 	  => $file,	
-					'line' 	  => $line,
-				);
-				$this->writeOutErrors();
 				$this->__error($type, $message, $file, $line, array());
 			}
+			// Execution is ending, write out our errors
 			$this->writeOutErrors();
 		}
 		

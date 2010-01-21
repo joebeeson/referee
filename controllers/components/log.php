@@ -46,16 +46,43 @@
 		protected $errors;
 		
 		/**
+		 * Path to our listeners directory
+		 * @var string
+		 * @access protected
+		 */
+		protected $directory;
+		
+		/**
 		 * Initialization actions
 		 * @return null
 		 * @access public
 		 */
-		public function initialize() {
-			// Tell ClassRegistry about ourself.
+		public function initialize($controller, $directory = '') {
+			// Set our directory, tell ClassRegistry about ourself.
 			ClassRegistry::addObject('Referee.Log', $this);
+			$this->setDirectory($directory);
 			// Get our grubby paws on the errors and load our listeners
 			$this->attachHandlers();
 			$this->loadListeners();
+		}
+		
+		/**
+		 * Validates and sets our listeners directory. If passed an empty
+		 * string we will set our default directory.
+		 * @param string $directory
+		 * @return null
+		 * @access private
+		 */
+		private function setDirectory($directory = '') {
+			if (!empty($directory)) {
+				if (!is_dir($directory)) {
+					throw new RuntimeException('Referee::setDirectory() expects a directory');
+				} else {
+					$this->directory = $directory;
+				}
+			} else {
+				$this->directory = dirname(__FILE__).'/../../vendors/listeners/';
+			}
 		}
 		
 		/**
@@ -77,8 +104,7 @@
 		 */
 		private function loadListeners() {
 			// TODO: Perhaps this should be configurable?
-			$directory = realpath(dirname(__FILE__).'/../../vendors/listeners');
-			$directory = new Folder($directory);
+			$directory = new Folder($this->directory);
 			foreach ($directory->find('.+\.php') as $listener) {
 				require($directory->path.DS.$listener);
 			}
@@ -174,6 +200,8 @@
 			$error = error_get_last();
 			if (self::isFatal($error['type'])) {
 				extract($error);
+				debug_print_backtrace();
+				die;
 				$this->__error($type, $message, $file, $line, array());
 			}
 			// Execution is ending, write out our errors

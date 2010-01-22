@@ -39,6 +39,13 @@
 		);
 		
 		/**
+		 * Our controller instance
+		 * @var Controller
+		 * @access protected
+		 */
+		protected $controller;
+		
+		/**
 		 * Our collection of errors to be logged.
 		 * @var array
 		 * @access protected
@@ -58,9 +65,12 @@
 		 * @access public
 		 */
 		public function initialize($controller, $directory = '') {
+			$this->controller = $controller;
+			
 			// Set our directory, tell ClassRegistry about ourself.
 			ClassRegistry::addObject('Referee.Log', $this);
 			$this->setDirectory($directory);
+			
 			// Get our grubby paws on the errors and load our listeners
 			$this->attachHandlers();
 			$this->loadListeners();
@@ -145,7 +155,8 @@
 		 * @access private
 		 */
 		private function logError($level, $message, $file, $line) {
-			$this->errors[] = compact('level', 'message', 'file', 'line');
+			$url = $this->controller->here;
+			$this->errors[] = compact('level', 'message', 'file', 'line', 'url');
 			if (self::isFatal($level)) {
 				$this->writeOutErrors();
 			}
@@ -200,8 +211,6 @@
 			$error = error_get_last();
 			if (self::isFatal($error['type'])) {
 				extract($error);
-				debug_print_backtrace();
-				die;
 				$this->__error($type, $message, $file, $line, array());
 			}
 			// Execution is ending, write out our errors

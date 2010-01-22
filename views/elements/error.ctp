@@ -8,16 +8,16 @@
 	</td>
 	<td class="file">
 		<?php e(str_replace(realpath(APP.'../'), '', $file)); ?>:<?php e($line); ?>
-	</td><!--
-	<td class="message" width="300">
-		<?php e(strip_tags($message)); ?>
-	</td>//-->
+	</td>
+	<td class="url" width="300">
+		<?php e($url); ?>
+	</td>
 	<td class="created">
 		<?php e($this->Time->timeAgoInWords($created, array('end' => '+1 day'))); ?>
 	</td>
 </tr>
 <tr class="<?php e($key % 2 ? 'odd' : ''); ?>">
-	<td colspan="3" style="font-style: italic; color: #666; padding-top: 1px;">
+	<td colspan="4" style="font-style: italic; color: #666; padding-top: 1px;">
 		<?php echo strip_tags($message); ?>
 	</td>
 </tr>

@@ -101,8 +101,14 @@
 		 * @access private
 		 */
 		private function attachHandlers() {
-			// Set us as the error handler and attach Cake's as a listener
-			$this->attach('*', set_error_handler(array($this, '__error')));
+			// Set us as the error handler and grab Cake's error handler
+			$errorHandler = set_error_handler(array($this, '__error'));
+			
+			// If we're in debug we want to attach Cake's handler
+			if ($errorHandler !== null) {
+				$this->attach('*', $errorHandler);
+			}
+			
 			// Register a shutdown function to catch __fatal errors
 			register_shutdown_function(array($this, '__shutdown'));
 		}

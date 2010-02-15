@@ -7,12 +7,12 @@
 	App::import('Core', 'Error');
 	
 	/**
-	 * Tacks into PHP's error handling stack. Extends Observable for any
-	 * class to tack into our error events. Any PHP file in found inside
-	 * vendors/listeners/ will be loaded automatically.
+	 * Tacks into PHP's error handling stack. Extends Observable for any class to 
+	 * tack into our error events. Any PHP file in found inside vendors/listeners/ 
+	 * will be loaded automatically.
 	 * @author Joe Beeson <joe@joebeeson.com>
 	 */
-	class LogComponent extends Observable {
+	class WhistleComponent extends Observable {
 		
 		/**
 		 * Helps us translate error integers back into their respective
@@ -46,16 +46,37 @@
 		protected $errors;
 		
 		/**
+		 * Folder with listeners to load up
+		 * @var string
+		 * @access protected
+		 */
+		protected $listeners;
+		
+		/**
 		 * Initialization actions
 		 * @return null
 		 * @access public
 		 */
-		public function initialize() {
+		public function initialize($controller, $settings = array()) {
 			// Tell ClassRegistry about ourself.
-			ClassRegistry::addObject('Referee.Log', $this);
+			ClassRegistry::addObject('Referee.Whistle', $this);
+			// Load up any settings we may have
+			$this->loadSettings($settings);
 			// Get our grubby paws on the errors and load our listeners
 			$this->attachHandlers();
 			$this->loadListeners();
+		}
+		
+		/**
+		 * Convenience method for loading up the passed $settings into our instance
+		 * @param array $settings
+		 * @return null
+		 * @access private
+		 */
+		private function loadSettings($settings = array()) {
+			foreach ($settings as $key=>$value) {
+				$this->$key = $value;
+			}
 		}
 		
 		/**
@@ -82,8 +103,10 @@
 		 * @access private
 		 */
 		private function loadListeners() {
-			// TODO: Perhaps this should be configurable?
-			$directory = realpath(dirname(__FILE__).'/../../vendors/listeners');
+			$directory = (!empty($this->listeners)
+				? $this->listeners
+				: realpath(dirname(__FILE__).'/../../vendors/listeners')
+			);
 			$directory = new Folder($directory);
 			foreach ($directory->find('.+\.php') as $listener) {
 				require($directory->path.DS.$listener);

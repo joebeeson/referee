@@ -16,6 +16,11 @@
 	//$logComponent->attach(E_NOTICE, 'exampleListener');
 	
 	/**
+	 * If we feel so inclined we could attach a listener to "*" (without the quotes)
+	 * to have us listen to every single event.
+	 */
+	
+	/**
 	 * This is our example listener that we attached above. It will be
 	 * called when an E_NOTICE occurs.
 	 */

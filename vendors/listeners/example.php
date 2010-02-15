@@ -13,7 +13,7 @@
 	 * Here we attach the exampleListener() function and listen for an
 	 * E_NOTICE event to be dispatched.
 	 */
-	$logComponent->attach(E_NOTICE, 'exampleListener');
+	//$logComponent->attach(E_NOTICE, 'exampleListener');
 	
 	/**
 	 * This is our example listener that we attached above. It will be

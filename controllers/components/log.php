@@ -39,13 +39,6 @@
 		);
 		
 		/**
-		 * Our controller instance
-		 * @var Controller
-		 * @access protected
-		 */
-		protected $controller;
-		
-		/**
 		 * Our collection of errors to be logged.
 		 * @var array
 		 * @access protected
@@ -53,46 +46,16 @@
 		protected $errors;
 		
 		/**
-		 * Path to our listeners directory
-		 * @var string
-		 * @access protected
-		 */
-		protected $directory;
-		
-		/**
 		 * Initialization actions
 		 * @return null
 		 * @access public
 		 */
-		public function initialize($controller, $directory = '') {
-			$this->controller = $controller;
-			
-			// Set our directory, tell ClassRegistry about ourself.
+		public function initialize() {
+			// Tell ClassRegistry about ourself.
 			ClassRegistry::addObject('Referee.Log', $this);
-			$this->setDirectory($directory);
-			
 			// Get our grubby paws on the errors and load our listeners
 			$this->attachHandlers();
 			$this->loadListeners();
-		}
-		
-		/**
-		 * Validates and sets our listeners directory. If passed an empty
-		 * string we will set our default directory.
-		 * @param string $directory
-		 * @return null
-		 * @access private
-		 */
-		private function setDirectory($directory = '') {
-			if (!empty($directory)) {
-				if (!is_dir($directory)) {
-					throw new RuntimeException('Referee::setDirectory() expects a directory');
-				} else {
-					$this->directory = $directory;
-				}
-			} else {
-				$this->directory = dirname(__FILE__).'/../../vendors/listeners/';
-			}
 		}
 		
 		/**
@@ -120,7 +83,8 @@
 		 */
 		private function loadListeners() {
 			// TODO: Perhaps this should be configurable?
-			$directory = new Folder($this->directory);
+			$directory = realpath(dirname(__FILE__).'/../../vendors/listeners');
+			$directory = new Folder($directory);
 			foreach ($directory->find('.+\.php') as $listener) {
 				require($directory->path.DS.$listener);
 			}
@@ -141,7 +105,7 @@
 			// Translate to a human readable error level
 			$error = self::translateError($level);
 			
-			// We don't act upon E_STRICT since there are a ton of them.
+			// We don't act upon E_STRICT since there are a *ton* of them.
 			if ($error != 'strict') {
 				$this->logError($error, $message, $file, $line);
 				$this->notify($level, $level, $message, $file, $line, $context);
@@ -161,8 +125,7 @@
 		 * @access private
 		 */
 		private function logError($level, $message, $file, $line) {
-			$url = $this->controller->here;
-			$this->errors[] = compact('level', 'message', 'file', 'line', 'url');
+			$this->errors[] = compact('level', 'message', 'file', 'line');
 			if (self::isFatal($level)) {
 				$this->writeOutErrors();
 			}

@@ -2,7 +2,9 @@
 
 Referee plugin catches errors and exceptions and logs them to the database.
 
-> "*If you're waiting around for users to tell you about problems with your website or application, you're only seeing a tiny fraction of all the problems that are actually occurring. The proverbial tip of the iceberg.*" - [Exception Driven Development][1]
+> "*If you're waiting around for users to tell you about problems with your website or application, you're only seeing a tiny fraction of all the problems that are actually occurring. The proverbial tip of the iceberg.*"
+
+> "*Also, if this is the case, I'm sorry to be the one to have to tell you this, but you kind of suck at your job -- **which is to know more about your application's health than your users do**.*" - [Exception Driven Development][1]
 
 ## Features
  * Easily extended

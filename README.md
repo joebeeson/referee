@@ -15,7 +15,7 @@ Referee plugin catches errors and exceptions and logs them to the database.
 
         $ cd /path/to/your/app/plugins && git clone git://github.com/joebeeson/referee.git
 
-* Create the table
+* Create the schema
 
         $ cake schema create Referee.schema
 

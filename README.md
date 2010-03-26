@@ -15,6 +15,10 @@ Referee plugin catches errors and exceptions and logs them to the database.
 
         $ cd /path/to/your/app/plugins && git clone git://github.com/joebeeson/referee.git
 
+* Create the table
+
+        $ cake schema create Referee.schema
+
 * Add the component to the top of your `AppController`
 
         public $components = array('Referee.Whistle');

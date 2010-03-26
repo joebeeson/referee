@@ -19,5 +19,14 @@ Referee plugin catches errors and exceptions and logs them to the database.
 
         public $components = array('Referee.Whistle');
 
+## Extend
 
+You can extend the component to add in custom "listeners" to perform actions when specific errors occur. This is useful for notifications, opening error tickets, etc.
+
+* Create a PHP file in the `/your/app/plugins/referee/vendors/listeners` directory
+
+        $referee = ClassRegistry::getObject('Referee.Whistle');
+        $referee->attach(E_ERROR, 'sendEmailFunction');
+
+The `sendEmailFunction` will be executed when a `E_ERROR` occurs and will be passed a handful of parameters about the error. 
   [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html

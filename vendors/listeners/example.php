@@ -4,7 +4,7 @@
 	 * Retrieve a copy of the LogComponent instance so that we can attach
 	 * our listener callback to it.
 	 */
-	$logComponent = ClassRegistry::getObject('Referee.Log');
+	$logComponent = ClassRegistry::getObject('Referee.Whistle');
 	
 	/**
 	 * The attach() method accepts two parameters. The event type to attach

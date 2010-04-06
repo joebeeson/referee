@@ -35,4 +35,12 @@ You can extend the component to add in custom "listeners" to perform actions whe
         $referee->attach(E_ERROR, 'sendEmailFunction');
 
 The `sendEmailFunction` will be executed when a `E_ERROR` occurs and will be passed a handful of parameters about the error. 
+
+## Monitor
+
+Included is a shell for monitoring production applications in realtime
+
+* Fire up a terminal
+
+       $ cake errors monitor
   [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html

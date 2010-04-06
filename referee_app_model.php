@@ -6,6 +6,6 @@
 	 */
 	class RefereeAppModel extends AppModel {
 		/**
-		 * See the Error model for the SQL CREATE TABLE query.
+		 * Run "cake schema create Referee.schema" to create the Referee schema
 		 */
 	}

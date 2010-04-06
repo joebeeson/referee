@@ -42,5 +42,6 @@ Included is a shell for monitoring production applications in realtime
 
 * Fire up a terminal
 
-       $ cake errors monitor
+        $ cake errors monitor
+
   [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html

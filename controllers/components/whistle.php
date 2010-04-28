@@ -46,7 +46,7 @@
 		 * @var array
 		 * @access protected
 		 */
-		protected $errors;
+		protected $errors = array();
 		
 		/**
 		 * Folder with listeners to load up
@@ -194,7 +194,10 @@
 		 * @static
 		 */
 		public static function translateError($level = 0) {
-			return strtolower(str_replace('E_', '', self::$levels[$level]));
+			if (isset(self::$levels[$level])) {
+				return strtolower(str_replace('E_', '', self::$levels[$level]));
+			} 
+			return null;
 		}
 		
 		/**
@@ -216,6 +219,15 @@
 			
 			// Execution is ending, write out our errors
 			$this->writeOutErrors();
+		}
+		
+		/**
+		 * Accessor method to our $errors member variable
+		 * @return array
+		 * @access public
+		 */
+		public function getErrors() {
+			return $this->errors;
 		}
 		
 	}

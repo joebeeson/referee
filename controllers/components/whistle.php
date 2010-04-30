@@ -3,8 +3,11 @@
 	// We need the Observable library for our listeners
 	App::import('Lib', 'Referee.observable');
 	
-	// Make sure we have the ErrorHandler in place
-	App::import('Core', 'Error');
+	// When running via the TestShell we have to make sure we don't do this twice
+	if (!class_exists('ErrorHandler')) {
+		// Make sure we have the ErrorHandler in place
+		App::import('Core', 'Error');
+	}
 	
 	/**
 	 * WhistleComponent
@@ -63,7 +66,6 @@
 		 * @access public
 		 */
 		public function initialize() {
-			
 			// Tell ClassRegistry about ourself
 			ClassRegistry::addObject('Referee.Whistle', $this);
 			

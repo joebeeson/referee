@@ -19,8 +19,11 @@
 		 */
 		public function startTest() {
 			$this->Whistle = new WhistleComponent();
-			$this->Whistle->initialize();
-			//$this->Whistle->startup(new Controller());
+			
+			// When running via the TestShell, it handles our initialization
+			if (php_sapi_name() != 'cli') {
+				$this->Whistle->initialize();
+			}
 		}
 		
 		/**

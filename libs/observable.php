@@ -40,12 +40,19 @@
 		 * @final
 		 */
 		final public function detach($event, $callback) {
-			$key = array_search($callback, $this->events[$event]);
-			if (!empty($key)) {
-				unset($this->events[$key]);
-				return true;
+			if (isset($this->events[$event])) {
+				foreach ($this->events[$event] as $key=>$listener) {
+					if ($listener === $callback) {
+						unset($this->events[$event][$key]);
+						
+						// If that was the last event, lets clean up
+						if (empty($this->events[$event])) {
+							unset($this->events[$event]);
+						}
+						return true;
+					}
+				}
 			}
-			return false;
 		}
 		
 		/**
@@ -61,18 +68,38 @@
 			$arguments = func_get_args();
 			$event     = array_shift($arguments);
 			$return    = array();
-			if (isset($this->events[$event])) {
-				foreach ($this->events[$event] as $callback) {
-					$return[] = call_user_func_array($callback, $arguments);
-				}
+			foreach ($this->getListeners($event) as $callback) {
+				$return[] = call_user_func_array($callback, $arguments);
 			}
 			// Support for universal notifications
-			if (isset($this->events['*'])) {
-				foreach ($this->events['*'] as $callback) {
-					$return[] = call_user_func_array($callback, $arguments);
-				}
+			foreach ($this->getListeners('*') as $callback) {
+				$return[] = call_user_func_array($callback, $arguments);
 			}
 			return $return;
+		}
+		
+		/**
+		 * Accessor method for our $events member variable.
+		 * @return array
+		 * @access public
+		 * @final
+		 */
+		final public function getEvents() {
+			return $this->events;
+		}
+		
+		/**
+		 * Returns all listeners for the requested $event
+		 * @param string $event
+		 * @return array
+		 * @access public
+		 * @final
+		 */
+		final public function getListeners($event) {
+			if (isset($this->events[$event])) {
+				return $this->events[$event];
+			}
+			return array();
 		}
 		
 	}

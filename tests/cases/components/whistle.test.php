@@ -27,14 +27,61 @@
 		}
 		
 		/**
+		 * Destruction method, executed just prior to object destruction. Gives
+		 * us a chance to clean up after ourselves before we go away.
+		 * @return null
+		 * @access public
+		 */
+		public function __destruct() {
+			// Clean up after ourselves
+			ClassRegistry::init('Referee.Error')->deleteAll(array(
+				'`Error`.`file`' => __FILE__
+			));
+		}
+		
+		/**
 		 * Performed after each test method is executed. Resets our environment
 		 * for the next test.
 		 * @return null
 		 * @access public
 		 */
 		public function endTest() {
+			
+			// Reset our component for next use
 			unset($this->Whistle);
 			ClassRegistry::flush();
+			
+		}
+		
+		/**
+		 * Tests that our "writeOutErrors" method is 1) writing out errors and
+		 * 2) that it is doing so automatically on a fatal error.
+		 * @return null
+		 * @access public
+		 */
+		public function testWriteOutErrors() {
+			$uniqueErrorMessage = uniqid();
+			@$this->Whistle->__error(E_ERROR, $uniqueErrorMessage, __FILE__, __LINE__, array());
+			
+			/**
+			 * So because the WhistleComponent tries to bypass all the red tape
+			 * to make sure that it can write errors to the database, we can't
+			 * easily use fixtures. So this part is "dirty" but... it works.
+			 */
+			
+			// Initiate our model and make sure we find the error we just caused
+			$Model = ClassRegistry::init('Referee.Error');
+			$this->assertIdentical(
+				1,
+				$Model->find('count', array(
+					'conditions' => array(
+						'`Error`.`message`' => $uniqueErrorMessage
+					)
+				))
+			);
+			
+			// Fire the shutdown method
+			$this->Whistle->__shutdown();
 		}
 		
 		/**
@@ -51,8 +98,8 @@
 			// Setup and fire off our error and a couple others...
 			$uniqueErrorMessage = uniqid();
 			@$this->Whistle->__error(E_NOTICE, $uniqueErrorMessage, __FILE__, __LINE__, array());
-			@$this->Whistle->__error(E_USER_NOTICE, 'Not unique message', __FILE__, __LINE__, array());
-
+			@$this->Whistle->__error(E_USER_NOTICE, $uniqueErrorMessage, __FILE__, __LINE__, array());
+			
 			// We should only have one error caught
 			$this->assertIdentical(
 				count($Listener->errors),

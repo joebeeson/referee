@@ -19,11 +19,6 @@
 		 */
 		public function startTest() {
 			$this->Whistle = new WhistleComponent();
-			
-			// When running via the TestShell, it handles our initialization
-			if (php_sapi_name() != 'cli') {
-				$this->Whistle->initialize();
-			}
 		}
 		
 		/**

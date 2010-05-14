@@ -11,6 +11,158 @@
 	
 	/**
 	 * WhistleComponent
+	 * Tacks into PHP's error handling to provide an easy way to attach custom
+	 * listeners for errors that occur during execution.
+	 * @author Joe Beeson <jbeeson@gmail.com>
+	 */
+	class WhistleComponent extends Object {
+		
+		/**
+		 * Holds our listeners that are attached to our current execution and 
+		 * their respective configuration for each.
+		 * @var array
+		 * @access protected
+		 */
+		protected $listeners = array();
+		
+		/**
+		 * Holds the actual objects that represent our $listeners -- this way we
+		 * reuse the objects instead of instantiating new ones for everything.
+		 * @var array
+		 * @access protected
+		 */
+		protected $objects = array();
+		
+		/**
+		 * Holds the paths we should search for listeners in
+		 * @var array
+		 * @access protected
+		 */
+		protected $paths = array();
+		
+		/**
+		 * Initilization method, executed prior to the controller's beforeFilter
+		 * method but after the model instantiation.
+		 * @param Controller $controller
+		 * @param array $listeners
+		 */
+		public function initialize($controller, $configuration = array()) {
+			
+			// Setup any paths that we were given
+			if (isset($configuration['paths'])) {
+				$this->addListenerPath($configuration['paths']);
+			}
+			
+			// Attach any passed listeners...
+			if (isset($configuration['listeners'])) {
+				$this->attachListeners($configuration['listeners']);
+			}
+			
+		}
+		
+		/**
+		 * Adds the given $paths to our paths member variable after we confirm
+		 * that it is valid and doesn't already exist.
+		 * @param mixed $paths
+		 * @return null
+		 * @access public
+		 */
+		public function addListenerPath($paths = '') {
+			$paths = (!is_array($paths) ? array($paths) : $paths);
+			foreach ($paths as $path) {
+				if (file_exists($path) and !in_array($path, $this->paths)) {
+					if (substr($path, -1) != DIRECTORY_SEPARATOR) {
+						$path .= DIRECTORY_SEPARATOR;
+					}
+					$this->paths[] = $path;
+				}
+			}
+		}
+		
+		/**
+		 * Convenience method for attaching the passed $listeners to our current
+		 * execution. If you need to know if the listener was properly attached
+		 * you should use the attachListener method since it returns its success
+		 * @param array $listeners
+		 * @return null
+		 * @access public
+		 */
+		public function attachListeners($listeners = array()) {
+			foreach ($listeners as $listener=>$configuration) {
+				$this->attachListener($listener, $configuration);
+			}
+		}
+		
+		/**
+		 * Attaches the passed $listener with the optional $configuration for it.
+		 * We return boolean to indicate success or failure.
+		 * @param string $listener
+		 * @param array $configuration
+		 * @return boolean
+		 * @access public
+		 */
+		public function attachListener($listener, $configuration = array()) {
+			if ($this->_loadListener($listener)) {
+				
+				/**
+				 * Confirm that we have the listener object in our $objects member
+				 * variable. If we don't, go get it. 
+				 */
+				
+				die;
+			}
+			return false;
+		}
+		
+		/**
+		 * Attempts to load the provided $listener object. Returns boolean to
+		 * indicate if we were successful or not.
+		 * @param string $listener
+		 * @return boolean
+		 * @access protected
+		 */
+		protected function _loadListener($listener = '') {
+			if (class_exists($this->_listenerClassname($listener))) {
+				return true;
+			} else {
+				foreach ($this->paths as $path) {
+					$filePath = $path . $this->_listenerFilename($listener);
+					if (file_exists($filePath)) {
+						require($filePath);
+					}
+				}
+			}
+			
+			// If we managed to find it, this should return true...
+			return class_exists($this->_listenerClassname($listener));
+		}
+		
+		/**
+		 * Convenience method for determining the expected class name for the
+		 * given $listener
+		 * @param string $listener
+		 * @return string
+		 * @access protected
+		 */
+		protected function _listenerClassname($listener = '') {
+			return $listener . 'Listener';
+		}
+		
+		/**
+		 * Convenience method for determining the expected file name for the
+		 * given $listener
+		 * @param string $listener
+		 * @return string
+		 * @access protected
+		 */
+		protected function _listenerFilename($listener = '') {
+			return Inflector::underscore($listener) . '_listener.php';
+		}
+		
+	}
+	
+	/**
+	 * WhistleComponent
 	 * 
 	 * Tacks into PHP's error handling stack. Extends Observable for any class to 
 	 * tack into our error events. Any PHP file in found inside vendors/listeners/ 
@@ -18,7 +170,7 @@
 	 * 
 	 * @author Joe Beeson <joe@joebeeson.com>
 	 */
-	class WhistleComponent extends Observable {
+	class WhistlerComponent extends Observable {
 		
 		/**
 		 * Helps us translate error integers back into their respective

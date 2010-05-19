@@ -85,7 +85,19 @@
 			$return  = array();
 			foreach ($error as $key=>$value) {
 				if (isset($mapping[$key])) {
-					$column = array_pop(array_intersect($mapping[$key], $schema));
+					if (is_array($mapping[$key])) {
+						$column = array_pop(
+							array_intersect(
+								$mapping[$key], 
+								$schema
+							)
+						);
+					} else {
+						$column = (in_array($mapping[$key], $schema)
+							? $mapping[$key]
+							: null
+						);
+					}
 					if (!empty($column)) {
 						$return[$column] = $value;
 					}

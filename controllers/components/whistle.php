@@ -54,8 +54,8 @@
 				$this->attachListeners($configuration['listeners']);
 			}
 			
-			// Attach our error handler for all errors save for E_STRICT
-			set_error_handler(array($this, '__error'), E_ALL ^ E_STRICT);
+			// Attach our error handler for all errors save for E_STRICT and E_DEPRECATED
+			set_error_handler(array($this, '__error'), E_ALL & ~E_STRICT & ~E_DEPRECATED);
 			
 			// Register a shutdown function to catch fatal errors
 			register_shutdown_function(array($this, '__shutdown'));
@@ -74,12 +74,12 @@
 		 * @return null
 		 * @access public
 		 */
-		public function __error($level, $string, $file, $line) {
+		public function __error($level, $message, $file, $line) {
 			foreach ($this->listeners as $listener=>$configurations) {
 				foreach ($configurations as $configuration) {
 					if ($configuration['levels'] & $level) {
 						$this->objects[$listener]->{$configuration['method']}(
-							compact('level', 'string', 'file', 'line'),
+							compact('level', 'message', 'file', 'line'),
 							$configuration['parameters']
 						);
 					}

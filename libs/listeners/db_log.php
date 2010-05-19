@@ -4,6 +4,7 @@
 	 * DbLogListener
 	 * Provides functionality for logging errors to the database. 
 	 * @author Joe Beeson <jbeeson@gmail.com>
+	 * @package RefereePlugin
 	 */
 	class DbLogListener {
 		

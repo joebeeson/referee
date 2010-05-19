@@ -172,7 +172,7 @@
 					$this->_attachConfiguration($listener, $config);
 				}
 			} else {
-				$this->listeners[$listener][] = am(
+				$this->listeners[$listener][] = array_merge(
 					array(
 						'levels' => E_ALL,
 						'method' => 'error',

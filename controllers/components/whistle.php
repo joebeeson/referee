@@ -192,14 +192,14 @@
 		 * @access protected
 		 */
 		protected function _hasManyConfigurations($configuration = array()) {
-				return (count(
-					array_filter(
-						array_map(
-							'is_numeric', 
-							array_keys($configuration)
-						)
+			return (count(
+				array_filter(
+					array_map(
+						'is_numeric', 
+						array_keys($configuration)
 					)
-				) > 0);
+				)
+			) > 0);
 		}
 		
 		/**

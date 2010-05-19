@@ -41,12 +41,17 @@
 		protected $paths = array();
 		
 		/**
-		 * Initilization method, executed prior to the controller's beforeFilter
+		 * Initialization method executed prior to the controller's beforeFilter
 		 * method but after the model instantiation.
 		 * @param Controller $controller
 		 * @param array $listeners
 		 */
 		public function initialize($controller, $configuration = array()) {
+			
+			// Add our listeners directory to the paths
+			$this->addListenerPath(
+				App::pluginPath('referee') . 'libs' . DS . 'listeners'
+			);
 			
 			// Setup any paths that we were given
 			if (isset($configuration['paths'])) {
@@ -89,7 +94,18 @@
 		 */
 		public function attachListeners($listeners = array()) {
 			foreach ($listeners as $listener=>$configuration) {
-				$this->attachListener($listener, $configuration);
+				// Just in case they pass us a listener with no configuration
+				if (is_numeric($listener)) {
+					$listener = $configuration;
+					$configuration = array();
+				}
+				if ($this->_hasManyConfigurations($configuration)) {
+					foreach ($configuration as $singleConfiguration) {
+						$this->attachListener($listener, $singleConfiguration);
+					}
+				} else {
+					$this->attachListener($listener, $configuration);
+				}
 			}
 		}
 		
@@ -102,14 +118,49 @@
 		 * @access public
 		 */
 		public function attachListener($listener, $configuration = array()) {
-			if ($this->_loadListener($listener)) {
-				
-				/**
-				 * Confirm that we have the listener object in our $objects member
-				 * variable. If we don't, go get it. 
-				 */
-				
-				die;
+			if ($this->_loadListener($listener, $configuration)) {
+				if ($this->_instantiateListener($listener)) {
+					$this->listeners[$listener][] = $configuration;
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		/**
+		 * Convenience method for determining if the passed $configuration has
+		 * more than one configuration in it, which signals that the listener in
+		 * question wishes to have more than one instance.
+		 * @param array $configuration
+		 * @return boolean
+		 * @access protected
+		 */
+		protected function _hasManyConfigurations($configuration = array()) {
+				return (count(
+					array_filter(
+						array_map(
+							'is_numeric', 
+							array_keys($configuration)
+						)
+					)
+				) > 0);
+		}
+		
+		/**
+		 * Creates the requested $listener object and attaches it to our objects
+		 * member variable if we don't already have it available. Returns boolean
+		 * to indicate success of our actions.
+		 * @param string $listener
+		 * @return boolean
+		 * @access protected
+		 */
+		protected function _instantiateListener($listener = '') {
+			$class = $this->_listenerClassname($listener);
+			if (class_exists($class)) {
+				if (!in_array($class,	array_map('get_class', $this->objects))) {
+					$this->objects[] = new $class;
+				}
+				return true;
 			}
 			return false;
 		}
@@ -118,17 +169,22 @@
 		 * Attempts to load the provided $listener object. Returns boolean to
 		 * indicate if we were successful or not.
 		 * @param string $listener
+		 * @param array $configuration
 		 * @return boolean
 		 * @access protected
 		 */
-		protected function _loadListener($listener = '') {
-			if (class_exists($this->_listenerClassname($listener))) {
-				return true;
-			} else {
-				foreach ($this->paths as $path) {
-					$filePath = $path . $this->_listenerFilename($listener);
-					if (file_exists($filePath)) {
-						require($filePath);
+		protected function _loadListener($listener = '', $configuration = array()) {
+			if (!class_exists($this->_listenerClassname($listener))) {
+				if (isset($configuration['file'])) {
+					// The $configuration told us where to load the file...
+					require($configuration['file']);
+				} else {
+					// We must search through our $paths for the file...
+					foreach ($this->paths as $path) {
+						$filePath = $path . $this->_listenerFilename($listener);
+						if (file_exists($filePath)) {
+							require($filePath);
+						}
 					}
 				}
 			}
@@ -156,7 +212,7 @@
 		 * @access protected
 		 */
 		protected function _listenerFilename($listener = '') {
-			return Inflector::underscore($listener) . '_listener.php';
+			return Inflector::underscore($listener) . '.php';
 		}
 		
 	}

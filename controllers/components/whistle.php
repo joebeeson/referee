@@ -87,11 +87,9 @@
 			foreach ($this->listeners as $listener=>$configurations) {
 				foreach ($configurations as $configuration) {
 					if ($configuration['levels'] & $level) {
-						$this->objects[$listener]->error(
-							$level,
-							$string,
-							$file,
-							$line
+						$this->objects[$listener]->{$configuration['method']}(
+							compact('level', 'string', 'file', 'line'),
+							$configuration['parameters']
 						);
 					}
 				}
@@ -185,7 +183,9 @@
 			} else {
 				$this->listeners[$listener][] = am(
 					array(
-						'levels' => E_ALL
+						'levels' => E_ALL,
+						'method' => 'error',
+						'parameters' => array()
 					),
 					$configuration
 				);

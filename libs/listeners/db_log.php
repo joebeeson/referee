@@ -15,6 +15,13 @@
 		protected $configuration;
 		
 		/**
+		 * Holds our model instance
+		 * @var Model
+		 * @access protected
+		 */
+		protected $model;
+		
+		/**
 		 * Holds our default configuration options
 		 * @var array
 		 * @access protected
@@ -22,10 +29,10 @@
 		protected $defaults = array(
 			
 			/**
-			 * This is the model we will attempt to use. We will check if it
-			 * exists prior to saving a new record.
+			 * This is the model we will attempt to use when saving the error
+			 * record to the database. At the very least the table should exist
 			 */
-			'model' => 'error',
+			'model' => 'Error',
 			
 			/**
 			 * The key represents the key value we get from the error and the
@@ -53,11 +60,55 @@
 			)
 		);
 		
+		/**
+		 * Triggered when we're passed an error from the WhistleComponent
+		 * @param array $error
+		 * @apram array $configuration
+		 * @return null
+		 * @access public
+		 */
 		public function error($error, $configuration = array()) {
 			extract($this->_setConfiguration($configuration));
-			if (in_array($model, Configure::listObjects('model'))) {
-				
+			$this->_getModel()->save($this->_getSaveArray($error));
+		}
+		
+		/**
+		 * Maps our $error onto the correct columns, at least the ones that we
+		 * can determine from the model schema.
+		 * @param array $error
+		 * @return array
+		 * @access protected
+		 */
+		protected function _getSaveArray($error) {
+			$schema  = array_keys($this->_getModel()->schema());
+			$mapping = $this->configuration['mapping'];
+			$return  = array();
+			foreach ($error as $key=>$value) {
+				if (isset($mapping[$key])) {
+					$column = array_pop(array_intersect($mapping[$key], $schema));
+					if (!empty($column)) {
+						$return[$column] = $value;
+					}
+				}
 			}
+			return $return;
+		}
+		
+		/**
+		 * Convenience method for returning the model we should be using. We are
+		 * reusing the same model so we minimize ClassRegistry::init() calls.
+		 * @return Model
+		 * @access protected
+		 */
+		protected function _getModel() {
+			if (!isset($this->model)) {
+				$this->model = ClassRegistry::init($this->configuration['model']);
+			} else {
+				if ($this->model->name != $this->configuration['model']) {
+					$this->model = ClassRegistry::init($this->configuration['model']);
+				}
+			}
+			return $this->model;
 		}
 		
 		/**

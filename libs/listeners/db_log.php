@@ -49,7 +49,7 @@
 					'file',
 					'location',
 				),
-				'string' => array(
+				'message' => array(
 					'message',
 					'error',
 					'string'

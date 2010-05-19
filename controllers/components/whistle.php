@@ -63,6 +63,53 @@
 				$this->attachListeners($configuration['listeners']);
 			}
 			
+			// Attach our error handler for all errors save for E_STRICT
+			set_error_handler(array($this, '__error'), E_ALL ^ E_STRICT);
+			
+			// Register a shutdown function to catch fatal errors
+			register_shutdown_function(array($this, '__shutdown'));
+			
+		}
+		
+		/**
+		 * Triggered when an error occurs during execution. We handle the process
+		 * of looping through our listener configurations and seeing if there is
+		 * anyone that matches our current error level and if so we will trigger
+		 * the listener's error method and pass along our parameters.
+		 * @param integer $level
+		 * @param string $string
+		 * @param string $file
+		 * @param integer $line
+		 * @return boolean
+		 * @access public
+		 */
+		public function __error($level, $string, $file, $line) {
+			foreach ($this->listeners as $listener=>$configurations) {
+				foreach ($configurations as $configuration) {
+					if ($configuration['levels'] & $level) {
+						$this->objects[$listener]->error(
+							$level,
+							$string,
+							$file,
+							$line
+						);
+					}
+				}
+			}
+		}
+		
+		/**
+		 * Executed via register_shutdown_function() in an attempt to catch any
+		 * fatal errors before we stop execution. If we find one we kick it back
+		 * out to our __error method to handle accordingly.
+		 * @return null
+		 * @access public
+		 */
+		public function __shutdown() {
+			extract(error_get_last());
+			if ($this->_isFatal($type)) {
+				$this->__error($type, $message, $file, $line);
+			}
 		}
 		
 		/**
@@ -99,13 +146,7 @@
 					$listener = $configuration;
 					$configuration = array();
 				}
-				if ($this->_hasManyConfigurations($configuration)) {
-					foreach ($configuration as $singleConfiguration) {
-						$this->attachListener($listener, $singleConfiguration);
-					}
-				} else {
-					$this->attachListener($listener, $configuration);
-				}
+				$this->attachListener($listener, $configuration);
 			}
 		}
 		
@@ -120,11 +161,35 @@
 		public function attachListener($listener, $configuration = array()) {
 			if ($this->_loadListener($listener, $configuration)) {
 				if ($this->_instantiateListener($listener)) {
-					$this->listeners[$listener][] = $configuration;
+					$this->_attachConfiguration($listener, $configuration);
+					return true;
 				}
-				return true;
 			}
 			return false;
+		}
+		
+		/**
+		 * Convenience method for attaching the supplied configuration to the
+		 * given listener. We take into account the possibility of multiple 
+		 * configurations for a listener.
+		 * @param string $listener
+		 * @param array $configuration
+		 * @return null
+		 * @access protected
+		 */
+		protected function _attachConfiguration($listener, $configuration = array()) {
+			if ($this->_hasManyConfigurations($configuration)) {
+				foreach ($configuration as $config) {
+					$this->_attachConfiguration($listener, $config);
+				}
+			} else {
+				$this->listeners[$listener][] = am(
+					array(
+						'levels' => E_ALL
+					),
+					$configuration
+				);
+			}
 		}
 		
 		/**
@@ -157,8 +222,8 @@
 		protected function _instantiateListener($listener = '') {
 			$class = $this->_listenerClassname($listener);
 			if (class_exists($class)) {
-				if (!in_array($class,	array_map('get_class', $this->objects))) {
-					$this->objects[] = new $class;
+				if (!isset($this->objects[$listener])) {
+					$this->objects[$listener] = new $class;
 				}
 				return true;
 			}
@@ -213,6 +278,23 @@
 		 */
 		protected function _listenerFilename($listener = '') {
 			return Inflector::underscore($listener) . '.php';
+		}
+		
+		/**
+		 * Convenience method for determining if the passed level is fatal
+		 * @param integer $level
+		 * @return boolean
+		 * @access protected
+		 */
+		protected function _isFatal($level = '') {
+			return in_array(
+				$level, 
+				array(
+					E_ERROR,
+					E_USER_ERROR,
+					E_PARSE
+				)
+			);
 		}
 		
 	}

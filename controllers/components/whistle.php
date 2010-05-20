@@ -5,18 +5,17 @@
 	 * Tacks into PHP's error handling to provide an easy way to attach custom
 	 * listeners for errors that occur during execution.
 	 * @author Joe Beeson <jbeeson@gmail.com>
-	 * @package RefereePlugin
 	 */
 	class WhistleComponent {
-		
+
 		/**
-		 * Holds our listeners that are attached to our current execution and 
+		 * Holds our listeners that are attached to our current execution and
 		 * their respective configuration for each.
 		 * @var array
 		 * @access protected
 		 */
 		protected $listeners = array();
-		
+
 		/**
 		 * Holds the actual objects that represent our $listeners -- this way we
 		 * reuse the objects instead of instantiating new ones for everything.
@@ -24,14 +23,14 @@
 		 * @access protected
 		 */
 		protected $objects = array();
-		
+
 		/**
 		 * Holds the paths we should search for listeners in
 		 * @var array
 		 * @access protected
 		 */
 		protected $paths = array();
-		
+
 		/**
 		 * Initialization method executed prior to the controller's beforeFilter
 		 * method but after the model instantiation.
@@ -39,30 +38,30 @@
 		 * @param array $listeners
 		 */
 		public function initialize($controller, $configuration = array()) {
-			
+
 			// Add our listeners directory to the paths
 			$this->addListenerPath(
 				App::pluginPath('referee') . 'libs' . DS . 'listeners'
 			);
-			
+
 			// Setup any paths that we were given
 			if (isset($configuration['paths'])) {
 				$this->addListenerPath($configuration['paths']);
 			}
-			
+
 			// Attach any passed listeners...
 			if (isset($configuration['listeners'])) {
 				$this->attachListeners($configuration['listeners']);
 			}
-			
+
 			// Attach our error handler for all errors save for E_STRICT and E_DEPRECATED
 			set_error_handler(array($this, '__error'), E_ALL & ~E_STRICT & ~E_DEPRECATED);
-			
+
 			// Register a shutdown function to catch fatal errors
 			register_shutdown_function(array($this, '__shutdown'));
-			
+
 		}
-		
+
 		/**
 		 * Triggered when an error occurs during execution. We handle the process
 		 * of looping through our listener configurations and seeing if there is
@@ -87,7 +86,7 @@
 				}
 			}
 		}
-		
+
 		/**
 		 * Executed via register_shutdown_function() in an attempt to catch any
 		 * fatal errors before we stop execution. If we find one we kick it back
@@ -101,7 +100,7 @@
 				$this->__error($type, $message, $file, $line);
 			}
 		}
-		
+
 		/**
 		 * Adds the given $paths to our paths member variable after we confirm
 		 * that it is valid and doesn't already exist.
@@ -120,7 +119,7 @@
 				}
 			}
 		}
-		
+
 		/**
 		 * Convenience method for attaching the passed $listeners to our current
 		 * execution. If you need to know if the listener was properly attached
@@ -139,7 +138,7 @@
 				$this->attachListener($listener, $configuration);
 			}
 		}
-		
+
 		/**
 		 * Attaches the passed $listener with the optional $configuration for it.
 		 * We return boolean to indicate success or failure.
@@ -157,10 +156,10 @@
 			}
 			return false;
 		}
-		
+
 		/**
 		 * Convenience method for attaching the supplied configuration to the
-		 * given listener. We take into account the possibility of multiple 
+		 * given listener. We take into account the possibility of multiple
 		 * configurations for a listener.
 		 * @param string $listener
 		 * @param array $configuration
@@ -169,8 +168,10 @@
 		 */
 		protected function _attachConfiguration($listener, $configuration = array()) {
 			if ($this->_hasManyConfigurations($configuration)) {
-				foreach ($configuration as $config) {
-					$this->_attachConfiguration($listener, $config);
+				foreach ($configuration as $key=>$config) {
+					if (is_numeric($key)) {
+						$this->_attachConfiguration($listener, $config);
+					}
 				}
 			} else {
 				$this->listeners[$listener][] = array_merge(
@@ -183,7 +184,7 @@
 				);
 			}
 		}
-		
+
 		/**
 		 * Convenience method for determining if the passed $configuration has
 		 * more than one configuration in it, which signals that the listener in
@@ -193,16 +194,20 @@
 		 * @access protected
 		 */
 		protected function _hasManyConfigurations($configuration = array()) {
-			return (count(
-				array_filter(
-					array_map(
-						'is_numeric', 
-						array_keys($configuration)
+			if (is_array($configuration)) {
+				unset($configuration['file']);
+				return (count(
+					array_filter(
+						array_map(
+							'is_numeric',
+							array_keys($configuration)
+						)
 					)
-				)
-			) > 0);
+				) > 0);
+			}
+			return false;
 		}
-		
+
 		/**
 		 * Creates the requested $listener object and attaches it to our objects
 		 * member variable if we don't already have it available. Returns boolean
@@ -221,7 +226,7 @@
 			}
 			return false;
 		}
-		
+
 		/**
 		 * Attempts to load the provided $listener object. Returns boolean to
 		 * indicate if we were successful or not.
@@ -245,11 +250,11 @@
 					}
 				}
 			}
-			
+
 			// If we managed to find it, this should return true...
 			return class_exists($this->_listenerClassname($listener));
 		}
-		
+
 		/**
 		 * Convenience method for determining the expected class name for the
 		 * given $listener
@@ -260,7 +265,7 @@
 		protected function _listenerClassname($listener = '') {
 			return $listener . 'Listener';
 		}
-		
+
 		/**
 		 * Convenience method for determining the expected file name for the
 		 * given $listener
@@ -271,7 +276,7 @@
 		protected function _listenerFilename($listener = '') {
 			return Inflector::underscore($listener) . '.php';
 		}
-		
+
 		/**
 		 * Convenience method for determining if the passed level is fatal
 		 * @param integer $level
@@ -280,7 +285,7 @@
 		 */
 		protected function _isFatal($level = '') {
 			return in_array(
-				$level, 
+				$level,
 				array(
 					E_ERROR,
 					E_USER_ERROR,
@@ -288,5 +293,5 @@
 				)
 			);
 		}
-		
+
 	}

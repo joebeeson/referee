@@ -4,7 +4,6 @@
 	 * SysLogListener
 	 * Provides functionality for logging errors to the system logger
 	 * @author Joe Beeson <jbeeson@gmail.com>
-	 * @package RefereePlugin
 	 */
 	class SysLogListener {
 		

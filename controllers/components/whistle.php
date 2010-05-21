@@ -149,7 +149,7 @@
 		 */
 		public function attachListener($listener, $configuration = array()) {
 			if ($this->_loadListener($listener, $configuration)) {
-				if ($this->_instantiateListener($listener)) {
+				if ($this->_instantiateListener($listener, $configuration)) {
 					$this->_attachConfiguration($listener, $configuration);
 					return true;
 				}
@@ -195,7 +195,7 @@
 		 */
 		protected function _hasManyConfigurations($configuration = array()) {
 			if (is_array($configuration)) {
-				unset($configuration['file']);
+				unset($configuration['file'], $configuration['class']);
 				return (count(
 					array_filter(
 						array_map(
@@ -213,11 +213,16 @@
 		 * member variable if we don't already have it available. Returns boolean
 		 * to indicate success of our actions.
 		 * @param string $listener
+		 * @param array $configuration
 		 * @return boolean
 		 * @access protected
 		 */
-		protected function _instantiateListener($listener = '') {
-			$class = $this->_listenerClassname($listener);
+		protected function _instantiateListener($listener = '', $configuration = array()) {
+			if (isset($configuration['class'])) {
+				$class = $configuration['class'];
+			} else {
+				$class = $this->_listenerClassname($listener);
+			}
 			if (class_exists($class)) {
 				if (!isset($this->objects[$listener])) {
 					$this->objects[$listener] = new $class;

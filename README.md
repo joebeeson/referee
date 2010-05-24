@@ -2,14 +2,6 @@
 
 Referee plugin catches errors and dispatches them to custom listeners.
 
-> "*If you're waiting around for users to tell you about problems with your website or application, you're only seeing a tiny fraction of all the problems that are actually occurring. The proverbial tip of the iceberg.*
-
-> *Also, if this is the case, I'm sorry to be the one to have to tell you this, but you kind of suck at your job -- **which is to know more about your application's health than your users do**.*" - [Exception Driven Development][1]
-
-## Features
- * Easily extended
- * Logs all (*even fatal*) errors and exceptions
-
 ## Installation
 
 * Download the plugin
@@ -80,5 +72,9 @@ You can also attach listeners using the `attachListener` method. It will return 
         );
 
 The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (*if any*) that were declared in the `$components` declaration for the listener.
+
+## Notes
+
+Previous versions of the plugin handled the recording of all errors to the database, there is no longer such automatic functionality. If you'd like something similar there is a `DbLog` listener available.
 
   [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html

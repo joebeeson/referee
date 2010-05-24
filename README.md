@@ -67,3 +67,5 @@ You can configure listeners in the `$components` declaration for the `WhistleCom
         );
 
 The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (*if any*) that were declared in the `$components` declaration for the listener.
+
+  [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html

@@ -43,7 +43,7 @@ You can configure listeners in the `$components` declaration for the `WhistleCom
  
                     'YourLogger' => array(
 
-                        // The error type(s) that should trigger this listener
+                        // The error type(s) that should trigger this listener. Defaults to E_ALL
                         'levels' => E_ERROR,
 
                         // The method to call to pass an error, defaults to 'error'

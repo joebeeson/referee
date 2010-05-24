@@ -15,22 +15,22 @@ Referee plugin catches errors and dispatches them to custom listeners.
 
 * Download the plugin
 
-    $ cd /path/to/your/app/plugins && git clone git://github.com/joebeeson/referee.git
+      $ cd /path/to/your/app/plugins && git clone git://github.com/joebeeson/referee.git
 
 * Create the schema
 
-    $ cake schema create Referee.schema
+      $ cake schema create Referee.schema
 
 * Add the component and attach your listeners
 
-    public $components = array(
-        'Referee.Whistle' => array(
-            'listeners' => array(
-                'DbLog',
-                'SysLog'
-            )
-        )
-    );
+      public $components = array(
+          'Referee.Whistle' => array(
+              'listeners' => array(
+                  'DbLog',
+                  'SysLog'
+              )
+          )
+      );
 
 ## Listeners
 
@@ -38,23 +38,23 @@ Listeners perform the actual leg work in handling an error. Their only requireme
 
 You can configure listeners in the `$components` declaration for the `WhistleComponent`, here's an example of some configuration options...
 
-    public $components = array(
-        'Referee.Whistle' => array(
-            'listeners' => array(
-                'YourLogger' => array(
-                    // The method to call to pass an error, defaults to 'error'
-                    'method' => 'customMethod',
-                    // The class to instantiate, defaults to (name)Listener, YourLoggerListener in this case
-                    'class'  => 'yourCustomListenerClass',
-                    'parameters' => array(
-                        /**
-                         * Anything in here will be passed to the listener's
-                         * error method when an error occurs.
-                         */
-                    )
-                )
-            )
-        )
-    );
+      public $components = array(
+          'Referee.Whistle' => array(
+              'listeners' => array(
+                  'YourLogger' => array(
+                      // The method to call to pass an error, defaults to 'error'
+                      'method' => 'customMethod',
+                      // The class to instantiate, defaults to (name)Listener, YourLoggerListener in this case
+                      'class'  => 'yourCustomListenerClass',
+                      'parameters' => array(
+                          /**
+                           * Anything in here will be passed to the listener's
+                           * error method when an error occurs.
+                           */
+                      )
+                  )
+              )
+          )
+      );
 
 The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (if any) that were declared in the `$components` declaration for the listener.

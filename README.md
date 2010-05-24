@@ -9,7 +9,6 @@ Referee plugin catches errors and dispatches them to custom listeners.
 ## Features
  * Easily extended
  * Logs all (*even fatal*) errors and exceptions
- * Monitor errors in real time
 
 ## Installation
 
@@ -65,6 +64,8 @@ You can configure listeners in the `$components` declaration for the `WhistleCom
                 )
             )
         );
+
+If you prefer a more dynamic approach or just hate to see your `$components` array so large, you can use the `attachListener` method which accepts two parameters, the listener's name and an optional configuration for it -- the configuration allows the exact declarations in the examples above. The method will return a boolean to indicate success in attaching the listener.
 
 The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (*if any*) that were declared in the `$components` declaration for the listener.
 

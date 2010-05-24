@@ -34,27 +34,36 @@ Referee plugin catches errors and dispatches them to custom listeners.
 
 ## Listeners
 
-Listeners perform the actual leg work in handling an error. Their only requirement is that they have a public function that the `WhistleComponent` can trigger when it needs to notify the listener of an error. In previous versions of Referee the plugin would record all errors to the database, this has been deprecated in favor of a more verbose approach. To help keep things speedy the `WhistleComponent` will only instantiate one instance of a listener and will reuse it for every error that it sends.
+Listeners perform the actual leg work in handling an error. Their only requirement is that they have a public function that the `WhistleComponent` can trigger when it needs to notify the listener of an error. 
 
 You can configure listeners in the `$components` declaration for the `WhistleComponent`, here's an example of some configuration options...
 
         public $components = array(
             'Referee.Whistle' => array(
                 'listeners' => array(
+ 
                     'YourLogger' => array(
+
+                        // The error type(s) that should trigger this listener
+			'levels' => E_ERROR,
+
                         // The method to call to pass an error, defaults to 'error'
                         'method' => 'customMethod',
+
                         // The class to instantiate, defaults to (name)Listener, YourLoggerListener in this case
                         'class'  => 'yourCustomListenerClass',
+
                         'parameters' => array(
                             /**
                              * Anything in here will be passed to the listener's
                              * error method when an error occurs.
                              */
                         )
+
                     )
+
                 )
             )
         );
 
-The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (if any) that were declared in the `$components` declaration for the listener.
+The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (*if any*) that were declared in the `$components` declaration for the listener.

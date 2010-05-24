@@ -241,7 +241,9 @@
 		 * @access protected
 		 */
 		protected function _loadListener($listener = '', $configuration = array()) {
-			if (!class_exists($this->_listenerClassname($listener))) {
+			extract($configuration);
+			$class = (isset($class) ? $class : $this->_listenerClassname($listener));
+			if (!class_exists($class)) {
 				if (isset($configuration['file'])) {
 					// The $configuration told us where to load the file...
 					require($configuration['file']);
@@ -257,7 +259,7 @@
 			}
 
 			// If we managed to find it, this should return true...
-			return class_exists($this->_listenerClassname($listener));
+			return class_exists($class);
 		}
 
 		/**
@@ -268,7 +270,7 @@
 		 * @access protected
 		 */
 		protected function _listenerClassname($listener = '') {
-			return $listener . 'Listener';
+			return ucwords($listener) . 'Listener';
 		}
 
 		/**

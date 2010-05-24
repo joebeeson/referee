@@ -1,6 +1,6 @@
 # Referee Plugin for CakePHP 1.3+
 
-Referee plugin catches errors and exceptions and logs them to the database.
+Referee plugin catches errors and dispatches them to custom listeners.
 
 > "*If you're waiting around for users to tell you about problems with your website or application, you're only seeing a tiny fraction of all the problems that are actually occurring. The proverbial tip of the iceberg.*
 
@@ -15,32 +15,46 @@ Referee plugin catches errors and exceptions and logs them to the database.
 
 * Download the plugin
 
-        $ cd /path/to/your/app/plugins && git clone git://github.com/joebeeson/referee.git
+    $ cd /path/to/your/app/plugins && git clone git://github.com/joebeeson/referee.git
 
 * Create the schema
 
-        $ cake schema create Referee.schema
+    $ cake schema create Referee.schema
 
-* Add the component to the top of your `AppController`
+* Add the component and attach your listeners
 
-        public $components = array('Referee.Whistle');
+    public $components = array(
+        'Referee.Whistle' => array(
+            'listeners' => array(
+                'DbLog',
+                'SysLog'
+            )
+        )
+    );
 
-## Extend
+## Listeners
 
-You can extend the component to add in custom "listeners" to perform actions when specific errors occur. This is useful for notifications, opening error tickets, etc.
+Listeners perform the actual leg work in handling an error. Their only requirement is that they have a public function that the `WhistleComponent` can trigger when it needs to notify the listener of an error. In previous versions of Referee the plugin would record all errors to the database, this has been deprecated in favor of a more verbose approach. To help keep things speedy the `WhistleComponent` will only instantiate one instance of a listener and will reuse it for every error that it sends.
 
-* Create a PHP file in the `/your/app/plugins/referee/vendors/listeners` directory
+You can configure listeners in the `$components` declaration for the `WhistleComponent`, here's an example of some configuration options...
 
-        $referee = ClassRegistry::getObject('Referee.Whistle');
-        $referee->attach(E_ERROR, 'sendEmailFunction');
+    public $components = array(
+        'Referee.Whistle' => array(
+            'listeners' => array(
+                'YourLogger' => array(
+                    // The method to call to pass an error, defaults to 'error'
+                    'method' => 'customMethod',
+                    // The class to instantiate, defaults to (name)Listener, YourLoggerListener in this case
+                    'class'  => 'yourCustomListenerClass',
+                    'parameters' => array(
+                        /**
+                         * Anything in here will be passed to the listener's
+                         * error method when an error occurs.
+                         */
+                    )
+                )
+            )
+        )
+    );
 
-The `sendEmailFunction` will be executed when a `E_ERROR` occurs and will be passed a handful of parameters about the error. 
-
-## Monitor
-
-Included is a shell for monitoring production applications in realtime
-
-* Fire up a terminal
-
-       $ cake errors monitor
-  [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html
+The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (if any) that were declared in the `$components` declaration for the listener.

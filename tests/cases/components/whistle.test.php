@@ -1,34 +1,23 @@
 <?php
 
-	// Required files for testing
-	App::import('Component', 'Referee.Whistle');
-	App::import('Core', 'Controller');
-
 	/**
 	 * WhistleComponentTest
 	 * Tests the Whistle component for the Referee plugin.
 	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
-	final class WhistleComponentTest extends CakeTestCase {
-		
+	class WhistleComponentTest extends CakeTestCase {
+
 		/**
-		 * Performed piror to each test method is executed. Sets up our test
-		 * environment for the following test.
+		 * Performed piror to each test method is executed.
 		 * @return null
 		 * @access public
 		 */
 		public function startTest() {
-			$this->Whistle = new WhistleComponent();
-			
-			// When running via the TestShell, it handles our initialization
-			if (php_sapi_name() != 'cli') {
-				$this->Whistle->initialize();
-			}
+			$this->Whistle = new WhistleComponentProxy();
 		}
-		
+
 		/**
-		 * Performed after each test method is executed. Resets our environment
-		 * for the next test.
+		 * Performed after each test method is executed.
 		 * @return null
 		 * @access public
 		 */
@@ -36,188 +25,257 @@
 			unset($this->Whistle);
 			ClassRegistry::flush();
 		}
-		
-		/**
-		 * Tests that the listeners and the Observable class is doing its job.
-		 * @return null
-		 * @access public
-		 */
-		public function testListeners() {
-			
-			// Ready our listener class...
-			$Listener = new TestListenerClass();
-			$this->Whistle->attach(E_NOTICE, array($Listener, 'error'));
-			
-			// Setup and fire off our error and a couple others...
-			$uniqueErrorMessage = uniqid();
-			@$this->Whistle->__error(E_NOTICE, $uniqueErrorMessage, __FILE__, __LINE__, array());
-			@$this->Whistle->__error(E_USER_NOTICE, 'Not unique message', __FILE__, __LINE__, array());
 
-			// We should only have one error caught
-			$this->assertIdentical(
-				count($Listener->errors),
-				1
-			);
-			
-			// We should have the correct error level...
-			$this->assertIdentical(
-				WhistleComponent::translateError($Listener->errors[0]['level']),
-				'notice'
-			);
-			
-			// The message should match the one we have
-			$this->assertIdentical(
-				$Listener->errors[0]['message'],
-				$uniqueErrorMessage
-			);
-			
-			// Now lets attach it for every single error and reset..
-			$this->Whistle->attach('*', array($Listener, 'error'));
-			$Listener->errors = array();
-			
-			// Regenerate our unique error message and start firing off errors
-			$uniqueErrorMessage = uniqid();
-			@$this->Whistle->__error(E_USER_NOTICE, $uniqueErrorMessage, __FILE__, __LINE__, array());
-			
-			// We should have the correct error level...
-			$this->assertIdentical(
-				WhistleComponent::translateError($Listener->errors[0]['level']),
-				'user_notice'
-			);
-			
-			// The message should match the one we have
-			$this->assertIdentical(
-				$Listener->errors[0]['message'],
-				$uniqueErrorMessage
-			);
-			
-			// We should only have one error caught
-			$this->assertIdentical(
-				count($Listener->errors),
-				1
-			);
-			
-		}
-		
 		/**
-		 * Tests that the component is accurately storing errors away.
+		 * Tests the addListenerPath method of the component.
 		 * @return null
 		 * @access public
 		 */
-		public function testErrorStorage() {
-			
-			// We shouldn't have any errors yet...
+		public function testAddListenerPath() {
+			// We shouldn't have any paths available
 			$this->assertIdentical(
-				$this->Whistle->getErrors(),
+				$this->Whistle->paths,
 				array()
 			);
-			
-			/**
-			 * We emulate the class catching an error. We use the error suppressor
-			 * so that the test isn't littered with error messages since it would
-			 * still pass them on. Also, we don't want to scare people.
-			 */
-			$uniqueErrorMessage = uniqid();
-			@$this->Whistle->__error(E_NOTICE, $uniqueErrorMessage, __FILE__, __LINE__, array());
-			$errors = $this->Whistle->getErrors();
-			
-			// Make sure that hte message matches the one we passed
+
+			// Add a known existing path...
+			$this->Whistle->addListenerPath(APP);
+
+			// We should now have the path available
 			$this->assertIdentical(
-				$errors[0]['message'], 
-				$uniqueErrorMessage
+				$this->Whistle->paths,
+				array(
+					APP
+				)
 			);
-			
-			// We sent an E_NOTICE, we should expect the level to be 'notice'
+
+			// Make sure that adding a non-existant path fails
+			$this->Whistle->addListenerPath(APP . uniqid());
+
+			// We should still only have APP available
 			$this->assertIdentical(
-				$errors[0]['level'],
-				'notice'
+				$this->Whistle->paths,
+				array(
+					APP
+				)
+			);
+
+		}
+
+		/**
+		 * Tests the _listenerClassname method of the component.
+		 * @return null
+		 * @access public
+		 */
+		public function testListenerClassname() {
+			$this->assertIdentical(
+				$this->Whistle->_listenerClassname('Test'),
+				'TestListener'
 			);
 		}
-		
+
 		/**
-		 * Tests for the WhistleComponent::isFatal() method
+		 * Tests the attachListener method of the component. We attach a
+		 * pretty plain listener.
+		 * @return null
+		 * @access public
+		 */
+		public function testAttachListenerVanilla() {
+			$this->assertIdentical(
+				$this->Whistle->listeners,
+				array()
+			);
+
+			$this->Whistle->initialize(new Controller());
+
+			// Attach our listener
+			$this->assertTrue($this->Whistle->attachListener('Test'));
+
+			// Make sure it got the correct object
+			$this->assertIsA(
+				$this->Whistle->objects['Test'],
+				'TestListener'
+			);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Test']->errors,
+				array()
+			);
+
+			// WhistleComponent should gobble this up
+			trigger_error('Testing error', E_USER_NOTICE);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Test']->errors[0]['level'],
+				E_USER_NOTICE
+			);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Test']->errors[0]['file'],
+				__FILE__
+			);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Test']->errors[0]['message'],
+				'Testing error'
+			);
+
+		}
+
+		/**
+		 * Tests the attachListener method of the component. We attach a
+		 * listener with an overridden method and class.
+		 * @return null
+		 * @access public
+		 */
+		public function testAttachListenerOverride() {
+			$this->assertIdentical(
+				$this->Whistle->listeners,
+				array()
+			);
+
+			$this->Whistle->initialize(new Controller());
+
+			// Attach our listener
+			$this->assertTrue(
+				$this->Whistle->attachListener(
+					'Override',
+					array(
+						'class'  => 'TestListener',
+						'method' => 'customError'
+					)
+				)
+			);
+
+			// Make sure it got the correct object
+			$this->assertIsA(
+				$this->Whistle->objects['Override'],
+				'TestListener'
+			);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Override']->errors,
+				array()
+			);
+
+			// WhistleComponent should gobble this up
+			trigger_error('Testing error', E_USER_NOTICE);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Override']->errors[0]['level'],
+				E_USER_NOTICE
+			);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Override']->errors[0]['file'],
+				__FILE__
+			);
+
+			$this->assertIdentical(
+				$this->Whistle->objects['Override']->errors[0]['message'],
+				'Testing error'
+			);
+		}
+
+		/**
+		 * Tests the isFatal method of the component.
 		 * @return null
 		 * @access public
 		 */
 		public function testIsFatal() {
-			
-			
-			
-			// E_ERROR is certainly a fatal error
-			$this->assertTrue(WhistleComponent::isFatal(E_ERROR));
-			
-			// E_NOTICE isn't a fatal error
-			$this->assertFalse(WhistleComponent::isFatal(E_NOTICE));
-			
-			// Sanity checks...
-			$this->assertFalse(WhistleComponent::isFatal(new Exception));
-			$this->assertFalse(WhistleComponent::isFatal());
-			$this->assertFalse(WhistleComponent::isfatal(''));
-			$this->assertFalse(WhistleComponent::isfatal(-1));
+			$this->assertTrue(
+				$this->Whistle->_isFatal(E_ERROR)
+			);
+			$this->assertTrue(
+				$this->Whistle->_isFatal(E_USER_ERROR)
+			);
+			$this->assertTrue(
+				$this->Whistle->_isFatal(E_PARSE)
+			);
+			$this->assertFalse(
+				$this->Whistle->_isFatal(-1)
+			);
+
 		}
-		
-		/**
-		 * Tests for the WhistleComponent::translateError method
-		 * @return null
-		 * @access public
-		 */
-		public function testTranslateError() {
-			$this->assertIdentical(
-				$this->Whistle->translateError(E_ERROR),
-				'error'
-			);
-			$this->assertIdentical(
-				$this->Whistle->translateError(E_NOTICE),
-				'notice'
-			);
-			$this->assertIdentical(
-				$this->Whistle->translateError(E_WARNING),
-				'warning'
-			);
-			
-			// Sanity checks...
-			$this->assertIdentical(
-				$this->Whistle->translateError(false),
-				null
-			);
-			$this->assertIdentical(
-				$this->Whistle->translateError(-1),
-				null
-			);
-			
-		}
-		
+
 	}
-	
+
+	// Ensure we have our WhistleComponent available
+	App::import('Component', 'Referee.Whistle');
+
 	/**
-	 * TestListenerClass
-	 * Used to help us determine if the listener system is working correctly
+	 * WhistleComponentProxy
+	 * Allows us to easily access protected methods and member variables
+	 * in the WhistleComponent.
 	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
-	class TestListenerClass {
-		
+	class WhistleComponentProxy extends WhistleComponent {
+
 		/**
-		 * Holds any errors we've caught
-		 * @var array
+		 * Allows us access to protected member variables.
+		 * @param string $variable
+		 * @return mixed
 		 * @access public
 		 */
-		public $errors = array();
-		
+		public function __get($variable) {
+			if (isset($this->$variable)) {
+				return $this->$variable;
+			}
+		}
+
 		/**
-		 * Method that is called when an error is passed along
-		 * @param string $level
-		 * @param string $message
-		 * @param string $file
-		 * $param integer $line
-		 * @param array $context
+		 * Allows us access to protected member methods.
+		 * @param string $method
+		 * @param array $arguments
+		 * @return mixed
+		 * @access public
+		 */
+		public function __call($method, $arguments) {
+			if (method_exists($this, $method)) {
+				return call_user_func_array(
+					array($this, $method),
+					$arguments
+				);
+			}
+		}
+
+	}
+
+	/**
+	 * TestListener
+	 * Small listener to attach to the WhistleComponent and confirm that
+	 * it's operating correctly.
+	 */
+	class TestListener {
+
+		public $errors = array();
+
+		public $parameters;
+
+		/**
+		 * Method called by WhistleComponent. Saves the error to our
+		 * member variable and records our current parameters.
+		 * @param array $error
+		 * @param array $parameters
 		 * @return null
 		 * @access public
 		 */
-		public function error($level, $message, $file, $line, $context) {
-			$this->errors = am(
-				$this->errors,
-				array(compact('level', 'message', 'file', 'line'))
-			);
+		public function error($error, $parameters) {
+			$this->errors[] = $error;
+			$this->parameters = $parameters;
 		}
-		
+
+		/**
+		 * A custom method for handling errors, simply passes it off to
+		 * the error() method.
+		 * @param array $error
+		 * @param array $parameters
+		 * @return null
+		 * @access public
+		 */
+		public function customError($error, $parameters) {
+			$this->error($error, $parameters);
+		}
+
 	}
+

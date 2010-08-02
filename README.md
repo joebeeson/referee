@@ -1,15 +1,6 @@
 # Referee Plugin for CakePHP 1.3+
 
-Referee plugin catches errors and exceptions and logs them to the database.
-
-> "*If you're waiting around for users to tell you about problems with your website or application, you're only seeing a tiny fraction of all the problems that are actually occurring. The proverbial tip of the iceberg.*
-
-> *Also, if this is the case, I'm sorry to be the one to have to tell you this, but you kind of suck at your job -- **which is to know more about your application's health than your users do**.*" - [Exception Driven Development][1]
-
-## Features
- * Easily extended
- * Logs all (*even fatal*) errors and exceptions
- * Monitor errors in real time
+Referee plugin catches errors and dispatches them to custom listeners.
 
 ## Installation
 
@@ -21,27 +12,69 @@ Referee plugin catches errors and exceptions and logs them to the database.
 
         $ cake schema create Referee.schema
 
-* Add the component to the top of your `AppController`
+* Add the component and attach your listeners
 
-        public $components = array('Referee.Whistle');
+        public $components = array(
+            'Referee.Whistle' => array(
+                'listeners' => array(
+                    'DbLog',
+                    'SysLog'
+                )
+            )
+        );
 
-## Extend
+## Listeners
 
-You can extend the component to add in custom "listeners" to perform actions when specific errors occur. This is useful for notifications, opening error tickets, etc.
+Listeners perform the actual leg work in handling an error. Their only requirement is that they have a public function that the `WhistleComponent` can trigger when it needs to notify the listener of an error.
 
-* Create a PHP file in the `/your/app/plugins/referee/vendors/listeners` directory
+You can configure listeners in the `$components` declaration for the `WhistleComponent`, here's an example of some configuration options...
 
-        $referee = ClassRegistry::getObject('Referee.Whistle');
-        $referee->attach(E_ERROR, 'sendEmailFunction');
+        public $components = array(
+            'Referee.Whistle' => array(
+                'listeners' => array(
 
-The `sendEmailFunction` will be executed when a `E_ERROR` occurs and will be passed a handful of parameters about the error. 
+                    'YourLogger' => array(
 
-## Monitor
+                        // The error type(s) that should trigger this listener. Defaults to E_ALL
+                        'levels' => E_ERROR,
 
-Included is a shell for monitoring production applications in realtime
+                        // The method to call to pass an error, defaults to 'error'
+                        'method' => 'customMethod',
 
-* Fire up a terminal
+                        // The class to instantiate, defaults to (name)Listener, YourLoggerListener in this case
+                        'class'  => 'yourCustomListenerClass',
 
-        $ cake errors monitor
+                        'parameters' => array(
+                            /**
+                             * Anything in here will be passed to the listener's
+                             * error method when an error occurs.
+                             */
+                        )
+
+                    )
+
+                )
+            )
+        );
+
+You can also attach listeners using the `attachListener` method. It will return a boolean to indicate success in attaching the listener.
+
+        $this->Whistle->attachListener(
+            'YourLogger',
+            array(
+                'levels' => E_ERROR,
+                'method' => 'customMethod',
+                'class'  => 'yourCustomListenerClass',
+                'parameters' => array(
+                    // Optional parameters to pass
+                )
+            )
+        );
+
+The method that is invoked by the `WhistleComponent` should accept two parameters: `$error` and `$parameters` -- the `$error` is an associative array describing the error that occurred and `$parameters` is an array containing the parameters (*if any*) that were declared in the `$components` declaration for the listener.
+
+## Notes
+
+Previous versions of the plugin handled the recording of all errors to the database, there is no longer such automatic functionality. If you'd like something similar there is a `DbLog` listener available.
 
   [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html

@@ -6,14 +6,14 @@
 	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
 	class SysLogListener {
-		
+
 		/**
 		 * Holds our current configuration
 		 * @var array
 		 * @access protected
 		 */
 		protected $configuration;
-		
+
 		/**
 		 * Holds our default configuration options
 		 * @var array
@@ -23,9 +23,9 @@
 			'ident'  => 'CakePHP Application',
 			'format' => 'Caught an %s error, "%s" in %s at line %s'
 		);
-		
+
 		/**
-		 * Mapping of our error levels to their names. It's a lot more user 
+		 * Mapping of our error levels to their names. It's a lot more user
 		 * friendly to say "We caught an E_ERROR" instead of "We caught 1"
 		 * @var array
 		 * @access protected
@@ -46,7 +46,7 @@
 			E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
 			E_DEPRECATED  		=> 'E_DEPRECATED',
 		);
-		
+
 		/**
 		 * Triggered when we're passed an error from the WhistleComponent
 		 * @param array $error
@@ -58,9 +58,10 @@
 			extract($this->_setConfiguration($configuration));
 			extract($error);
 			$level = $this->_translateError($level);
-			syslog(LOG_INFO, $ident . ': ' .sprintf($format, $level, $message, $file, $line));
+			$message = sprintf($format, $level, $message, $file, $line)
+			syslog(LOG_INFO, $ident . ': ' . $message);
 		}
-		
+
 		/**
 		 * Translates the $level integer into its human readable form.
 		 * @param integer $level
@@ -73,9 +74,9 @@
 			}
 			return 'E_UNKNOWN';
 		}
-		
+
 		/**
-		 * Convenience method for setting our configuration array. 
+		 * Convenience method for setting our configuration array.
 		 * @param array $configuration
 		 * @return array
 		 * @access protected
@@ -87,5 +88,5 @@
 			);
 			return $this->configuration;
 		}
-		
+
 	}

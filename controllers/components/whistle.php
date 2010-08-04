@@ -32,6 +32,13 @@
 		protected $paths = array();
 
 		/**
+		 * Holds the current URL when not in a shell
+		 * @var string
+		 * @access protected
+		 */
+		protected $url = '';
+
+		/**
 		 * Initialization method executed prior to the controller's beforeFilter
 		 * method but after the model instantiation.
 		 * @param Controller $controller
@@ -60,6 +67,9 @@
 			// Register a shutdown function to catch fatal errors
 			register_shutdown_function(array($this, '__shutdown'));
 
+			// Store the URL away for writing later
+			$this->url = '/' . $controller->params['url']['url'];
+
 		}
 
 		/**
@@ -75,11 +85,12 @@
 		 * @access public
 		 */
 		public function __error($level, $message, $file, $line) {
+			$url = $this->url;
 			foreach ($this->listeners as $listener=>$configurations) {
 				foreach ($configurations as $configuration) {
 					if ($configuration['levels'] & $level) {
 						$this->objects[$listener]->{$configuration['method']}(
-							compact('level', 'message', 'file', 'line'),
+							compact('level', 'message', 'file', 'line', 'url'),
 							$configuration['parameters']
 						);
 					}

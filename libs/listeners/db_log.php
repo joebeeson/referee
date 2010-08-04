@@ -2,38 +2,38 @@
 
 	/**
 	 * DbLogListener
-	 * Provides functionality for logging errors to the database. 
+	 * Provides functionality for logging errors to the database.
 	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
 	class DbLogListener {
-		
+
 		/**
 		 * Holds our current configuration
 		 * @var array
 		 * @access protected
 		 */
 		protected $configuration;
-		
+
 		/**
 		 * Holds our model instance
 		 * @var Model
 		 * @access protected
 		 */
 		protected $model;
-		
+
 		/**
 		 * Holds our default configuration options
 		 * @var array
 		 * @access protected
 		 */
 		protected $defaults = array(
-			
+
 			/**
 			 * This is the model we will attempt to use when saving the error
 			 * record to the database. At the very least the table should exist
 			 */
 			'model' => 'Error',
-			
+
 			/**
 			 * The key represents the key value we get from the error and the
 			 * value represents the columns we will attempt to look for when
@@ -56,10 +56,15 @@
 				),
 				'line' => array(
 					'line',
+				),
+				'url' => array(
+					'url',
+					'address',
+					'location'
 				)
 			)
 		);
-		
+
 		/**
 		 * Triggered when we're passed an error from the WhistleComponent
 		 * @param array $error
@@ -71,7 +76,7 @@
 			extract($this->_setConfiguration($configuration));
 			$this->_getModel()->save($this->_getSaveArray($error));
 		}
-		
+
 		/**
 		 * Maps our $error onto the correct columns, at least the ones that we
 		 * can determine from the model schema.
@@ -88,7 +93,7 @@
 					if (is_array($mapping[$key])) {
 						$column = array_pop(
 							array_intersect(
-								$mapping[$key], 
+								$mapping[$key],
 								$schema
 							)
 						);
@@ -105,7 +110,7 @@
 			}
 			return $return;
 		}
-		
+
 		/**
 		 * Convenience method for returning the model we should be using. We are
 		 * reusing the same model so we minimize ClassRegistry::init() calls.
@@ -122,9 +127,9 @@
 			}
 			return $this->model;
 		}
-		
+
 		/**
-		 * Convenience method for setting our configuration array. 
+		 * Convenience method for setting our configuration array.
 		 * @param array $configuration
 		 * @return array
 		 * @access protected
@@ -136,5 +141,5 @@
 			);
 			return $this->configuration;
 		}
-		
+
 	}

@@ -58,7 +58,7 @@
 			extract($this->_setConfiguration($configuration));
 			extract($error);
 			$level = $this->_translateError($level);
-			$message = sprintf($format, $level, $message, $file, $line)
+			$message = sprintf($format, $level, $message, $file, $line);
 			syslog(LOG_INFO, $ident . ': ' . $message);
 		}
 

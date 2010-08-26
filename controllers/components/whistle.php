@@ -5,6 +5,7 @@
 	 * Tacks into PHP's error handling to provide an easy way to attach custom
 	 * listeners for errors that occur during execution.
 	 * @author Joe Beeson <jbeeson@gmail.com>
+	 * @package App.Plugins.Referee
 	 */
 	class WhistleComponent {
 

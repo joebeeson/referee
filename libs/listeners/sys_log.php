@@ -4,6 +4,7 @@
 	 * SysLogListener
 	 * Provides functionality for logging errors to the system logger
 	 * @author Joe Beeson <jbeeson@gmail.com>
+	 * @package App.Plugins.Referee
 	 */
 	class SysLogListener {
 

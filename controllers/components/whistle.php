@@ -46,6 +46,14 @@
 		protected $_url = '';
 
 		/**
+		 * Disables the reporting of errors.
+		 *
+		 * @var boolean
+		 * @access protected
+		 */
+		protected $_disabled = false;
+
+		/**
 		 * Initialization method executed prior to the controller's beforeFilter
 		 * method but after the model instantiation.
 		 *
@@ -56,6 +64,13 @@
 		 * @see http://book.cakephp.org/view/1617/Component-callbacks
 		 */
 		public function initialize($controller, $configuration = array()) {
+
+			// We don't want to execute when testing
+			if (isset($_SERVER['PHP_SELF'])) {
+				if ($_SERVER['PHP_SELF'] == '/test.php') {
+					$this->_disabled = true;
+				}
+			}
 
 			// Add our listeners directory to the paths
 			$this->addListenerPath(
@@ -97,22 +112,16 @@
 		 * @access public
 		 */
 		public function __error($level, $message, $file, $line) {
-
-			// We don't want to execute when testing
-			if (isset($_SERVER['PHP_SELF'])) {
-				if ($_SERVER['PHP_SELF'] == '/test.php') {
-					return;
-				}
-			}
-
-			$url = $this->url;
-			foreach ($this->listeners as $listener=>$configurations) {
-				foreach ($configurations as $configuration) {
-					if ($configuration['levels'] & $level) {
-						$this->_objects[$listener]->{$configuration['method']}(
-							compact('level', 'message', 'file', 'line', 'url'),
-							$configuration['parameters']
-						);
+			if (!$this->_disabled) {
+				$url = $this->url;
+				foreach ($this->_listeners as $listener=>$configurations) {
+					foreach ($configurations as $configuration) {
+						if ($configuration['levels'] & $level) {
+							$this->_objects[$listener]->{$configuration['method']}(
+								compact('level', 'message', 'file', 'line', 'url'),
+								$configuration['parameters']
+							);
+						}
 					}
 				}
 			}

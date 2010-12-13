@@ -17,6 +17,7 @@
 		 */
 		public function startTest() {
 			$this->Whistle = new WhistleComponentProxy();
+			$this->Whistle->_disabled = false;
 		}
 
 		/**
@@ -222,6 +223,13 @@
 	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
 	class WhistleComponentProxy extends WhistleComponent {
+
+		public $_disabled = false;
+
+		public function initialize($controller, $configuration = array()) {
+			parent::initialize($controller, $configuration);
+			$this->_disabled = false;
+		}
 
 		/**
 		 * Allows us access to protected member variables.

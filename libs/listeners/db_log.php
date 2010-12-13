@@ -2,32 +2,37 @@
 
 	/**
 	 * DbLogListener
+	 *
 	 * Provides functionality for logging errors to the database.
+	 *
 	 * @author Joe Beeson <jbeeson@gmail.com>
-	 * @package App.Plugins.Referee
+	 * @see http://blog.joebeeson.com/monitoring-your-applications-health/
 	 */
 	class DbLogListener {
 
 		/**
-		 * Holds our current configuration
+		 * Holds our current configuration.
+		 *
 		 * @var array
 		 * @access protected
 		 */
-		protected $configuration;
+		protected $_configuration = array();
 
 		/**
 		 * Holds our model instance
+		 *
 		 * @var Model
 		 * @access protected
 		 */
-		protected $model;
+		protected $_model;
 
 		/**
-		 * Holds our default configuration options
+		 * Holds our default configuration options.
+		 *
 		 * @var array
 		 * @access protected
 		 */
-		protected $defaults = array(
+		protected $_defaults = array(
 
 			/**
 			 * This is the model we will attempt to use when saving the error
@@ -67,7 +72,8 @@
 		);
 
 		/**
-		 * Triggered when we're passed an error from the WhistleComponent
+		 * Triggered when we're passed an error from the `WhistleComponent`
+		 *
 		 * @param array $error
 		 * @apram array $configuration
 		 * @return null
@@ -81,13 +87,14 @@
 		/**
 		 * Maps our $error onto the correct columns, at least the ones that we
 		 * can determine from the model schema.
+		 *
 		 * @param array $error
 		 * @return array
 		 * @access protected
 		 */
 		protected function _getSaveArray($error) {
 			$schema  = array_keys($this->_getModel()->schema());
-			$mapping = $this->configuration['mapping'];
+			$mapping = $this->_configuration['mapping'];
 			$return  = array();
 			foreach ($error as $key=>$value) {
 				if (isset($mapping[$key])) {
@@ -115,32 +122,44 @@
 		/**
 		 * Convenience method for returning the model we should be using. We are
 		 * reusing the same model so we minimize ClassRegistry::init() calls.
+		 *
 		 * @return Model
 		 * @access protected
 		 */
 		protected function _getModel() {
-			if (!isset($this->model)) {
-				$this->model = ClassRegistry::init($this->configuration['model']);
+			if (!isset($this->_model)) {
+
+				// Initialize the original model
+				$this->_model = ClassRegistry::init(
+					$this->_configuration['model']
+				);
 			} else {
-				if ($this->model->name != $this->configuration['model']) {
-					$this->model = ClassRegistry::init($this->configuration['model']);
+
+				// They're asking for a different model
+				if ($this->_model->name != $this->_configuration['model']) {
+					$this->_model = ClassRegistry::init(
+						$this->_configuration['model']
+					);
 				}
 			}
-			return $this->model;
+
+			// Return the setup model
+			return $this->_model;
 		}
 
 		/**
 		 * Convenience method for setting our configuration array.
+		 *
 		 * @param array $configuration
 		 * @return array
 		 * @access protected
 		 */
 		protected function _setConfiguration($configuration) {
-			$this->configuration = am(
-				$this->defaults,
+			$this->_configuration = am(
+				$this->_defaults,
 				$configuration
 			);
-			return $this->configuration;
+			return $this->_configuration;
 		}
 
 	}

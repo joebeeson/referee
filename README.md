@@ -57,6 +57,8 @@ You can configure listeners in the `$components` declaration for the `WhistleCom
             )
         );
 
+If you'd like to instantiate multilpe instances of the `YourLogger` listener, in this instance, simply nest multiple arrays, one for each instantiation, with the configuration for each specific instance -- [similar to how you do multiple validations on models][2].
+
 You can also attach listeners using the `attachListener` method. It will return a boolean to indicate success in attaching the listener.
 
         $this->Whistle->attachListener(
@@ -78,3 +80,4 @@ The method that is invoked by the `WhistleComponent` should accept two parameter
 Previous versions of the plugin handled the recording of all errors to the database, there is no longer such automatic functionality. If you'd like something similar there is a `DbLog` listener available.
 
   [1]: http://www.codinghorror.com/blog/2009/04/exception-driven-development.html
+  [2]: http://book.cakephp.org/view/133/Multiple-Rules-per-Field

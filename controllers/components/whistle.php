@@ -86,6 +86,14 @@
 		 * @access public
 		 */
 		public function __error($level, $message, $file, $line) {
+
+			// We don't want to execute when testing
+			if (isset($_SERVER['PHP_SELF'])) {
+				if ($_SERVER['PHP_SELF'] == '/test.php') {
+					return;
+				}
+			}
+
 			$url = $this->url;
 			foreach ($this->listeners as $listener=>$configurations) {
 				foreach ($configurations as $configuration) {

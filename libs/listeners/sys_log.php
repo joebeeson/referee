@@ -2,36 +2,40 @@
 
 	/**
 	 * SysLogListener
+	 *
 	 * Provides functionality for logging errors to the system logger
+	 *
 	 * @author Joe Beeson <jbeeson@gmail.com>
-	 * @package App.Plugins.Referee
+	 * @see http://blog.joebeeson.com/monitoring-your-applications-health/
 	 */
 	class SysLogListener {
 
 		/**
-		 * Holds our current configuration
+		 * Holds our current configuration.
+		 *
 		 * @var array
 		 * @access protected
 		 */
-		protected $configuration;
+		protected $_configuration = array();
 
 		/**
-		 * Holds our default configuration options
+		 * Holds our default configuration options.
+		 *
 		 * @var array
 		 * @access protected
 		 */
-		protected $defaults = array(
+		protected $_defaults = array(
 			'ident'  => 'CakePHP Application',
 			'format' => 'Caught an %s error, "%s" in %s at line %s'
 		);
 
 		/**
-		 * Mapping of our error levels to their names. It's a lot more user
-		 * friendly to say "We caught an E_ERROR" instead of "We caught 1"
+		 * Mapping of our error levels to their names.
+		 *
 		 * @var array
 		 * @access protected
 		 */
-		protected $levels = array(
+		protected $_levels = array(
 			E_ERROR 			=> 'E_ERROR',
 			E_WARNING			=> 'E_WARNING',
 			E_PARSE				=> 'E_PARSE',
@@ -49,7 +53,8 @@
 		);
 
 		/**
-		 * Triggered when we're passed an error from the WhistleComponent
+		 * Triggered when we're passed an error from the `WhistleComponent`
+		 *
 		 * @param array $error
 		 * @apram array $configuration
 		 * @return null
@@ -64,30 +69,32 @@
 		}
 
 		/**
-		 * Translates the $level integer into its human readable form.
+		 * Translates the `$level` integer into its human readable form.
+		 *
 		 * @param integer $level
 		 * @return string
 		 * @access protected
 		 */
 		protected function _translateError($level) {
-			if (isset($this->levels[$level])) {
-				return $this->levels[$level];
+			if (isset($this->_levels[$level])) {
+				return $this->_levels[$level];
 			}
 			return 'E_UNKNOWN';
 		}
 
 		/**
 		 * Convenience method for setting our configuration array.
+		 *
 		 * @param array $configuration
 		 * @return array
 		 * @access protected
 		 */
 		protected function _setConfiguration($configuration) {
-			$this->configuration = am(
-				$this->defaults,
+			$this->_configuration = am(
+				$this->_defaults,
 				$configuration
 			);
-			return $this->configuration;
+			return $this->_configuration;
 		}
 
 	}

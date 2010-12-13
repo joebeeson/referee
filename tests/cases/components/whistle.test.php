@@ -2,13 +2,16 @@
 
 	/**
 	 * WhistleComponentTest
+	 *
 	 * Tests the Whistle component for the Referee plugin.
+	 *
 	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
 	class WhistleComponentTest extends CakeTestCase {
 
 		/**
 		 * Performed piror to each test method is executed.
+		 *
 		 * @return null
 		 * @access public
 		 */
@@ -18,6 +21,7 @@
 
 		/**
 		 * Performed after each test method is executed.
+		 *
 		 * @return null
 		 * @access public
 		 */
@@ -28,13 +32,15 @@
 
 		/**
 		 * Tests the addListenerPath method of the component.
+		 *
 		 * @return null
 		 * @access public
 		 */
 		public function testAddListenerPath() {
+
 			// We shouldn't have any paths available
 			$this->assertIdentical(
-				$this->Whistle->paths,
+				$this->Whistle->_paths,
 				array()
 			);
 
@@ -43,7 +49,7 @@
 
 			// We should now have the path available
 			$this->assertIdentical(
-				$this->Whistle->paths,
+				$this->Whistle->_paths,
 				array(
 					APP
 				)
@@ -54,7 +60,7 @@
 
 			// We should still only have APP available
 			$this->assertIdentical(
-				$this->Whistle->paths,
+				$this->Whistle->_paths,
 				array(
 					APP
 				)
@@ -64,6 +70,7 @@
 
 		/**
 		 * Tests the _listenerClassname method of the component.
+		 *
 		 * @return null
 		 * @access public
 		 */
@@ -77,12 +84,13 @@
 		/**
 		 * Tests the attachListener method of the component. We attach a
 		 * pretty plain listener.
+		 *
 		 * @return null
 		 * @access public
 		 */
 		public function testAttachListenerVanilla() {
 			$this->assertIdentical(
-				$this->Whistle->listeners,
+				$this->Whistle->_listeners,
 				array()
 			);
 
@@ -93,12 +101,12 @@
 
 			// Make sure it got the correct object
 			$this->assertIsA(
-				$this->Whistle->objects['Test'],
+				$this->Whistle->_objects['Test'],
 				'TestListener'
 			);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Test']->errors,
+				$this->Whistle->_objects['Test']->errors,
 				array()
 			);
 
@@ -106,17 +114,17 @@
 			trigger_error('Testing error', E_USER_NOTICE);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Test']->errors[0]['level'],
+				$this->Whistle->_objects['Test']->errors[0]['level'],
 				E_USER_NOTICE
 			);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Test']->errors[0]['file'],
+				$this->Whistle->_objects['Test']->errors[0]['file'],
 				__FILE__
 			);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Test']->errors[0]['message'],
+				$this->Whistle->_objects['Test']->errors[0]['message'],
 				'Testing error'
 			);
 
@@ -125,12 +133,13 @@
 		/**
 		 * Tests the attachListener method of the component. We attach a
 		 * listener with an overridden method and class.
+		 *
 		 * @return null
 		 * @access public
 		 */
 		public function testAttachListenerOverride() {
 			$this->assertIdentical(
-				$this->Whistle->listeners,
+				$this->Whistle->_listeners,
 				array()
 			);
 
@@ -149,12 +158,12 @@
 
 			// Make sure it got the correct object
 			$this->assertIsA(
-				$this->Whistle->objects['Override'],
+				$this->Whistle->_objects['Override'],
 				'TestListener'
 			);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Override']->errors,
+				$this->Whistle->_objects['Override']->errors,
 				array()
 			);
 
@@ -162,23 +171,24 @@
 			trigger_error('Testing error', E_USER_NOTICE);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Override']->errors[0]['level'],
+				$this->Whistle->_objects['Override']->errors[0]['level'],
 				E_USER_NOTICE
 			);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Override']->errors[0]['file'],
+				$this->Whistle->_objects['Override']->errors[0]['file'],
 				__FILE__
 			);
 
 			$this->assertIdentical(
-				$this->Whistle->objects['Override']->errors[0]['message'],
+				$this->Whistle->_objects['Override']->errors[0]['message'],
 				'Testing error'
 			);
 		}
 
 		/**
 		 * Tests the isFatal method of the component.
+		 *
 		 * @return null
 		 * @access public
 		 */
@@ -205,14 +215,17 @@
 
 	/**
 	 * WhistleComponentProxy
+	 *
 	 * Allows us to easily access protected methods and member variables
 	 * in the WhistleComponent.
+	 *
 	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
 	class WhistleComponentProxy extends WhistleComponent {
 
 		/**
 		 * Allows us access to protected member variables.
+		 *
 		 * @param string $variable
 		 * @return mixed
 		 * @access public
@@ -225,6 +238,7 @@
 
 		/**
 		 * Allows us access to protected member methods.
+		 *
 		 * @param string $method
 		 * @param array $arguments
 		 * @return mixed
@@ -243,8 +257,11 @@
 
 	/**
 	 * TestListener
+	 *
 	 * Small listener to attach to the WhistleComponent and confirm that
 	 * it's operating correctly.
+	 *
+	 * @author Joe Beeson <jbeeson@gmail.com>
 	 */
 	class TestListener {
 
@@ -255,6 +272,7 @@
 		/**
 		 * Method called by WhistleComponent. Saves the error to our
 		 * member variable and records our current parameters.
+		 *
 		 * @param array $error
 		 * @param array $parameters
 		 * @return null
@@ -268,6 +286,7 @@
 		/**
 		 * A custom method for handling errors, simply passes it off to
 		 * the error() method.
+		 *
 		 * @param array $error
 		 * @param array $parameters
 		 * @return null

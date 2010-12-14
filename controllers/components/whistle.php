@@ -113,7 +113,7 @@
 		 */
 		public function __error($level, $message, $file, $line) {
 			if (!$this->_disabled) {
-				$url = $this->url;
+				$url = $this->_url;
 				foreach ($this->_listeners as $listener=>$configurations) {
 					foreach ($configurations as $configuration) {
 						if ($configuration['levels'] & $level) {

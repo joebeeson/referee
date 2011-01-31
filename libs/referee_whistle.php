@@ -161,9 +161,7 @@ class RefereeWhistle extends Object {
 			}
 			$error += $first;
 			if($this->includeTrace) {
-				$traceSize = sizeof($trace)-3;
-				$error['trace'] = array_slice($trace, 3, $this->traceDepth <= $traceSize ? $this->traceDepth : $traceSize);
-
+				$error['trace'] = array_slice($trace, 3, $this->traceDepth);
 			}
 		}
 		return $error;

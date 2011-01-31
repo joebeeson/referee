@@ -1,10 +1,22 @@
-CREATE TABLE `errors` (
-  `id` char(36) COLLATE utf8_unicode_ci NOT NULL,
-  `level` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `file` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `line` int(5) DEFAULT NULL,
-  `message` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `url` text COLLATE utf8_unicode_ci,
-  `created` datetime DEFAULT NULL,
+DROP TABLE IF EXISTS `referee_logs`;
+
+CREATE TABLE `referee_logs` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `level` varchar(32) NOT NULL DEFAULT '',
+  `file` varchar(255) NOT NULL DEFAULT '',
+  `line` int(4) unsigned NOT NULL DEFAULT '0',
+  `class` varchar(32) DEFAULT NULL,
+  `function` varchar(32) DEFAULT NULL,
+  `args` text,
+  `type` varchar(8) DEFAULT NULL COMMENT 'method, static, function',
+  `message` text NOT NULL,
+  `trace` text,
+  `request_method` varchar(6) DEFAULT '',
+  `request_plugin` varchar(32) DEFAULT NULL,
+  `request_controller` varchar(32) DEFAULT '',
+  `request_action` varchar(32) DEFAULT '',
+  `request_ext` varchar(8) DEFAULT NULL,
+  `request_parameters` text,
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;

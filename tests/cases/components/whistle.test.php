@@ -125,9 +125,10 @@ class WhistleComponentTest extends CakeTestCase {
 	 * @return void
 	 */
 	public function testHandlers() {
-
+		
+		// re-register because simpletest sets a new error handler on each invocation
 		$this->WhistleTest->WhistleProxy->registerHandlers();
-
+		
 		trigger_error('testing notice', E_USER_NOTICE);
 
 		$listener = $this->WhistleTest->WhistleProxy->getListener('Custom');

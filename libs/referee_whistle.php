@@ -82,8 +82,10 @@ class RefereeWhistle extends Object {
 	 * @return  void
 	 */
 	public function __construct($config = array()) {
+		// Register our handler functions
+		$this->registerHandlers();
 		if(!empty($config)) {
-			$this->_initialize($config);
+			$this->initialize(new Controller(), $config);
 		}
 	}
 
@@ -93,7 +95,8 @@ class RefereeWhistle extends Object {
 	 * @param   array $config
 	 * @return  void
 	 */
-	protected function _initialize($config = array()) {
+	public function initialize(&$controller = null, $config = array()) {
+		$this->_controller = $controller;
 		// Set config
 		$this->_set($config);
 		// We don't want to execute when testing
@@ -105,8 +108,6 @@ class RefereeWhistle extends Object {
 		} else {
 			// Attach any passed listeners...
 			$this->_loadListeners();
-			// Register our handler functions
-			$this->registerHandlers();
 		}
 	}
 

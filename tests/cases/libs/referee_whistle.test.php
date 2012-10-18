@@ -110,6 +110,7 @@ class RefereeWhistleTest extends CakeTestCase {
 	 */
 	public function testHandlers() {
 
+		// re-register because simpletest sets a new error handler on each invocation
 		$this->RefereeWhistleProxy->registerHandlers();
 
 		trigger_error('testing notice', E_USER_NOTICE);

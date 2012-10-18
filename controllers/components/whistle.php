@@ -68,20 +68,6 @@ class WhistleComponent extends RefereeWhistle {
 		}
 		return $error;
 	}
-
-	/**
-	 * Initialization method executed prior to the controller's beforeFilter
-	 * method but after the model instantiation.
-	 *
-	 * @param   Controller  $controller
-	 * @param   array       $config
-	 * @return  void
-	 */
-	public function initialize(&$controller, $config = array()) {
-		$this->_controller = $controller;
-		$this->_initialize($config);
-	}
-
 }
 
 ?>
